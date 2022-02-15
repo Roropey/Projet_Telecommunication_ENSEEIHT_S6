@@ -106,7 +106,7 @@ ylabel('Module TFD');
 Ns_3 = Fe/Rb;
 a_3_0 = -20;
 a_3_1 = 20;
-alpha = 0;
+alpha = 0.1;
 h_3 = rcosdesign(alpha, (N-1)/Ns_3,Ns_3);
 
 % Calculs
@@ -115,7 +115,16 @@ Suite_diracs_3 = kron(mapping_1, [1 zeros(1, Ns_3-1)]);
 Suite_diracs_3_decale=[Suite_diracs_3 zeros(1,floor(N/2))]; 
 x_3_decale = filter(h_3, 1, Suite_diracs_3_decale);
 x_3=x_3_decale(floor(N/2)+1:end);
+    %DSP
 mod_3_DSP = fftshift(abs(fft(xcorr(x_3,'unbiased'))));
+plage_module_3=(-Fe/2:Fe/(length(mod_3_DSP)-1):Fe/2);
+
+mod_3_DSP_th = zeros(1,length(mod_3_DSP));
+indices_1ere_plage = find(abs(plage_module_3)<=(1-alpha)*Fe/(2*Ns_3));
+indices_2nde_plage = find( (abs(plage_module_3)>=(1-alpha)*Fe/(2*Ns_3)) & (abs(plage_module_3)<=(1+alpha)*Fe/(2*Ns_3)));
+mod_3_DSP_th(indices_1ere_plage) = Fe/Ns_3;
+mod_3_DSP_th(indices_2nde_plage) = (Fe/(2*Ns_3))*(1+cos( (pi * Ns_3 / (Fe * alpha))*(abs(plage_module_3(indices_2nde_plage))- ((1-alpha)*Fe )/ (2*Ns_3) )));
+mod_3_DSP_th = (var(info_binaire)*Fe/Ns_3).*mod_3_DSP_th;
 
 % Affichage
 figure('Name',"Modulateur 3");
@@ -138,8 +147,11 @@ xlabel('Temps (s)');
 ylabel('Amplitude');
 
 subplot(2,2,4);
-plage_module_3=(-Fe/2:Fe/(length(mod_3_DSP)-1):Fe/2);
-semilogy(plage_module_3,mod_2_DSP);
+s1_3 = semilogy(plage_module_3,mod_3_DSP);
+hold on
+s2_3 = semilogy(plage_module_3, mod_3_DSP_th,'r','Linewidth',1);
+hold off;
+legend([s1_3, s2_3],"Valeur pratique","Valeur théorique");
 title("DSP du modulateur 3");
 xlabel('Hz');
 ylabel('Module TFD');
