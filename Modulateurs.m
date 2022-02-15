@@ -106,7 +106,8 @@ ylabel('Module TFD');
 Ns_3 = Fe/Rb;
 a_3_0 = -20;
 a_3_1 = 20;
-h_3 = rcosdesign(0, (N-1)/Ns_3,Ns_3);
+alpha = 0;
+h_3 = rcosdesign(alpha, (N-1)/Ns_3,Ns_3);
 
 % Calculs
 mapping_3 = info_binaire.*(a_3_1 - a_3_0) + a_3_0;
@@ -137,7 +138,7 @@ xlabel('Temps (s)');
 ylabel('Amplitude');
 
 subplot(2,2,4);
-plage_module_3=(-Fe/2:Fe/(length(mod_2_DSP)-1):Fe/2);
+plage_module_3=(-Fe/2:Fe/(length(mod_3_DSP)-1):Fe/2);
 semilogy(plage_module_3,mod_2_DSP);
 title("DSP du modulateur 3");
 xlabel('Hz');
