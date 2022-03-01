@@ -56,5 +56,32 @@ ylabel('Module TFD');
 
 %% Demodulateur
 
+%Filtrage de réception
 hr = ones(1,Ns);
-echant
+x_decale_2 = [x zeros(1,floor(Ns/2))];
+z_decale = filter(hr, 1, x_decale_2);
+z = z_decale(floor(Ns/2)+1:end);
+
+figure();
+plot(z);
+title("Signal en sortie de filtre de réception");
+xlabel("Temps")
+ylabel("Amplitude");
+
+%Echantillonage
+plage_echant = [Ns/(4*Fe):Ns/Fe:nb_bits*Ns/Fe];
+z_echant = reshape(z,[8, 100]);
+z_moy = mean(z_echant,1);
+
+%Décision
+info_bin_rec = z_moy > 0;
+difference = sum(info_binaire - info_bin_rec);
+
+%Réponse impulsionnelle
+g = conv(h,hr);
+figure();
+plot(g);
+
+oeil = reshape(z,length(z)/Ns, Ns)
+figure();
+plot(oeil);
