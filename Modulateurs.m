@@ -15,14 +15,14 @@ N = 101;
 Ns_1 = Fe/Rb;
 a_1_0 = -1;
 a_1_1 = 1;
-h_1 = ones(1,Ns_1+1);
+h_1 = ones(1,Ns_1);
 
 % Calculs
 mapping_1 = info_binaire.*(a_1_1 - a_1_0) + a_1_0;
 Suite_diracs_1 = kron(mapping_1, [1 zeros(1, Ns_1-1)]);
-Suite_diracs_1_decale=[Suite_diracs_1 zeros(1,floor((Ns_1+1)/2))]; 
+Suite_diracs_1_decale=[Suite_diracs_1 zeros(1,floor((Ns_1)/2))]; 
 x_1_decale = filter(h_1, 1, Suite_diracs_1_decale);
-x_1=x_1_decale(floor((Ns_1+1)/2)+1:end);
+x_1=x_1_decale(floor((Ns_1)/2)+1:end);
     %DSP
 mod_1_DSP = fftshift(abs(fft(xcorr(x_1,'unbiased'))));
 plage_module_1=(-Fe/2:Fe/(length(mod_1_DSP)-1):Fe/2);
@@ -39,13 +39,13 @@ T = table(Bit,Mapping);
 uitable('Data',T{:,:},'ColumnName',T.Properties.VariableNames,'FontUnits','normalized','FontSize',0.2,'Units','normalized','Position',[0 0.5 0.5 0.5]);
 
 subplot(2,2,2);
-plot((0:1/Fe:Ns_1/Fe),h_1);
+plot((0:1/Fe:(Ns_1-1)/Fe),h_1);
 title('Filtre de mise en forme rectangulaire');
 xlabel('Temps (s)');
 ylabel('Hauteur');
 
 subplot(2,2,3)
-plot((1/Fe:1/Fe:Ns_1*nb_bits/Fe),x_1);
+plot((0:1/Fe:(Ns_1*nb_bits-1)/Fe),x_1);
 title('Filtrage du modulateur 1');
 xlabel('Temps (s)');
 ylabel('Amplitude');
@@ -65,19 +65,20 @@ ylabel('Module TFD');
 
 % Variables
 Ns_2 = (Fe/Rb)*2;
-a_2_00 =  -1;
-a_2_01 = -3;
-a_2_10 = 1;
-a_2_11 = 3;
-h_2 = ones(1,Ns_2+1);
+a_2_00 =  -0.5;
+a_2_01 = -1;
+a_2_10 = 0.5;
+a_2_11 = 1;
+h_2 = ones(1,Ns_2);
 
 % Calculs
 info_binaire_2 = reshape(info_binaire, [2 nb_bits/2]);
 mapping_2 = info_binaire_2(1,:).*info_binaire_2(2,:).*(a_2_11-a_2_10-a_2_01+a_2_00) + info_binaire_2(1,:).*(a_2_10-a_2_00) + info_binaire_2(2,:).*(a_2_01-a_2_00) + a_2_00;
 Suite_diracs_2 = kron(mapping_2, [1 zeros(1, Ns_2-1)]);
-Suite_diracs_2_decale=[Suite_diracs_2 zeros(1,floor((Ns_2+1)/2))]; 
+Suite_diracs_2_decale=[Suite_diracs_2 zeros(1,floor((Ns_2)/2))]; 
 x_2_decale = filter(h_2, 1, Suite_diracs_2_decale);
-x_2=x_2_decale(floor((Ns_2+1)/2)+1:end);
+x_2=x_2_decale(floor((Ns_2)/2)+1:end);
+    %DSP
 mod_2_DSP = fftshift(abs(fft(xcorr(x_2,'unbiased'))));
 plage_module_2=(-Fe/2:Fe/(length(mod_2_DSP)-1):Fe/2);
 
@@ -94,13 +95,13 @@ T = table(Bit,Mapping);
 uitable('Data',T{:,:},'ColumnName',T.Properties.VariableNames,'FontUnits','normalized','FontSize',0.15,'Units','normalized','Position',[0 0.5 0.5 0.5]);
 
 subplot(2,2,2);
-plot((0:1/Fe:Ns_2/Fe),h_2);
+plot((0:1/Fe:(Ns_2-1)/Fe),h_2);
 title('Filtre de mise en forme rectangulaire');
 xlabel('Temps (s)');
 ylabel('Hauteur');
 
 subplot(2,2,3);
-plot((1/Fe:1/Fe:Ns_2*nb_bits/(2*Fe)),x_2);
+plot((0:1/Fe:(Ns_2*nb_bits-1)/(2*Fe)),x_2);
 title('Filtrage du modulateur 2');
 xlabel('Temps (s)');
 ylabel('Amplitude');
@@ -131,12 +132,18 @@ Suite_diracs_3 = kron(mapping_1, [1 zeros(1, Ns_3-1)]);
 Suite_diracs_3_decale=[Suite_diracs_3 zeros(1,floor(N/2))]; 
 x_3_decale = filter(h_3, 1, Suite_diracs_3_decale);
 x_3=x_3_decale(floor(N/2)+1:end);
+
     %DSP
 mod_3_DSP = fftshift(abs(fft(xcorr(x_3,'unbiased'))));
 plage_module_3=(-Fe/2:Fe/(length(mod_3_DSP)-1):Fe/2);
-
 syms expr_th_3(f);
-expr_th_3(f) = (var(mapping_3)*Fe/Ns_3).*((Ns_3/Fe).*(abs(f)<=(1-alpha)*Fe/(2*Ns_3)) + (Ns_3/(2*Fe))*(1+cos( (pi * Ns_3 / (Fe * alpha))*(abs(f.*((abs(f)>=(1-alpha)*Fe/(2*Ns_3)) & (abs(f)<=(1+alpha)*Fe/(2*Ns_3))))- ((1-alpha)*Fe )/ (2*Ns_3) ))).*((abs(f)>=(1-alpha)*Fe/(2*Ns_3)) & (abs(f)<=(1+alpha)*Fe/(2*Ns_3))));
+%mod_3_DSP_th = (var(mapping_3)*Fe/Ns_3).*...
+%((Ns_3/Fe).*(abs(plage_module_3)<=(1-alpha)*Fe/(2*Ns_3)) ...
+%+ (Ns_3/(2*Fe))*(1+cos( (pi * Ns_3 / (Fe * alpha))*(abs(plage_module_3.*((abs(plage_module_3)>=(1-alpha)*Fe/(2*Ns_3)) & (abs(plage_module_3)<=(1+alpha)*Fe/(2*Ns_3))))- ((1-alpha)*Fe )/ (2*Ns_3) ))).*((abs(plage_module_3)>=(1-alpha)*Fe/(2*Ns_3)) & (abs(plage_module_3)<=(1+alpha)*Fe/(2*Ns_3))));
+
+expr_th_3(f) = piecewise( abs(f)<=(1-alpha)*Fe/(2*Ns_3), (var(mapping_3)*Fe/Ns_3).*(Ns_3/Fe),...
+(abs(f)>=(1-alpha)*Fe/(2*Ns_3)) & (abs(f)<=(1+alpha)*Fe/(2*Ns_3)),(var(mapping_3)*Fe/Ns_3).* (Ns_3/(2*Fe))*(1+cos( (pi * Ns_3 / (Fe * alpha))*(abs(f)- ((1-alpha)*Fe )/ (2*Ns_3) ))),...
+(abs(f)<(1-alpha)*Fe/(2*Ns_3)) | (abs(f)>(1+alpha)*Fe/(2*Ns_3)),0);
 
 % Affichage
 figure('Name',"Modulateur 3");
@@ -153,7 +160,7 @@ xlabel('Temps (s)');
 ylabel('Hauteur');
 
 subplot(2,2,3);
-plot((1/Fe:1/Fe:Ns_3*nb_bits/Fe),x_3);
+plot((0:1/Fe:(Ns_3*nb_bits-1)/Fe),x_3);
 title('Filtrage du modulateur 3');
 xlabel('Temps (s)');
 ylabel('Amplitude');
@@ -168,7 +175,7 @@ legend([s1_3, s2_3],"Valeur pratique","Valeur théorique");
 title("DSP du modulateur 3");
 xlabel('Hz');
 ylabel('Module TFD');
-
+s2_3 = semilogy(plage_module_3, mod_3_DSP_th,'r','Linewidth',1);
 %% Comparaison
 
 % Affichage
