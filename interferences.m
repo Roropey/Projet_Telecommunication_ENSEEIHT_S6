@@ -36,13 +36,13 @@ T = table(Bit,Mapping);
 uitable('Data',T{:,:},'ColumnName',T.Properties.VariableNames,'FontUnits','normalized','FontSize',0.2,'Units','normalized','Position',[0 0.5 0.5 0.5]);
 
 subplot(2,2,2);
-plot(h);
+plot((1/Fe:1/Fe:Ns/Fe), h);
 title('Filtre de mise en forme rectangulaire');
 xlabel('Temps (s)');
 ylabel('Hauteur');
 
 subplot(2,2,3)
-plot(x);
+plot((1/Fe:1/Fe:Ns*nb_bits/Fe), x);
 title('Filtrage du modulateur 1');
 xlabel('Temps (s)');
 ylabel('Amplitude');
@@ -63,18 +63,16 @@ z_decale = filter(hr, 1, x_decale_2);
 z = z_decale(floor(Ns/2)+1:end);
 
 figure();
-plot(z);
+plot((1/Fe:1/Fe:Ns*nb_bits/Fe),z);
 title("Signal en sortie de filtre de réception");
 xlabel("Temps")
 ylabel("Amplitude");
 
 %Echantillonage
-plage_echant = [Ns/(4*Fe):Ns/Fe:nb_bits*Ns/Fe];
-z_echant = reshape(z,[8, 100]);
-z_moy = mean(z_echant,1);
+z_echant = z(1:Ns:end);
 
 %Décision
-info_bin_rec = z_moy > 0;
+info_bin_rec = z_echant > 0;
 difference = sum(info_binaire - info_bin_rec);
 
 %Réponse impulsionnelle
@@ -82,6 +80,17 @@ g = conv(h,hr);
 figure();
 plot(g);
 
-oeil = reshape(z,length(z)/Ns, Ns)
+n0 = Ns;
+
+oeil = reshape(z, 2*Ns, length(z)/(2*Ns));
 figure();
 plot(oeil);
+
+z_echant_1 = z(Ns:Ns:end);
+info_bin_rec_1 = z_echant_1 > 0;
+taux_erreur_binaire_1 = sum(abs(info_bin_rec_1-info_binaire))/length(info_binaire)
+
+
+
+
+
