@@ -22,7 +22,7 @@ mapping = info_binaire.*(a_1 - a_0) + a_0;
 Suite_diracs = kron(mapping, [1 zeros(1, Ns-1)]);
 x = filter(h, 1, Suite_diracs);
     %DSP
-mod_DSP = fftshift(abs(fft(xcorr(x,'unbiased'))));
+mod_DSP = fftshift(abs(fft(xcorr(x,'unbiased'),1024)));
 plage_module=(-Fe/2:Fe/(length(mod_DSP)-1):Fe/2);
 
 % Affichage

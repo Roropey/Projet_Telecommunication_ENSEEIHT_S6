@@ -24,7 +24,7 @@ Suite_diracs_1_decale=[Suite_diracs_1 zeros(1,floor((Ns_1)/2))];
 x_1_decale = filter(h_1, 1, Suite_diracs_1_decale);
 x_1=x_1_decale(floor((Ns_1)/2)+1:end);
     %DSP
-mod_1_DSP = fftshift(abs(fft(xcorr(x_1,'unbiased'))));
+mod_1_DSP = fftshift(abs(fft(xcorr(x_1,'unbiased'),1024)));
 plage_module_1=(-Fe/2:Fe/(length(mod_1_DSP)-1):Fe/2);
 
 syms expr_th_1(f);
@@ -79,7 +79,7 @@ Suite_diracs_2_decale=[Suite_diracs_2 zeros(1,floor((Ns_2)/2))];
 x_2_decale = filter(h_2, 1, Suite_diracs_2_decale);
 x_2=x_2_decale(floor((Ns_2)/2)+1:end);
     %DSP
-mod_2_DSP = fftshift(abs(fft(xcorr(x_2,'unbiased'))));
+mod_2_DSP = fftshift(abs(fft(xcorr(x_2,'unbiased'),1024)));
 plage_module_2=(-Fe/2:Fe/(length(mod_2_DSP)-1):Fe/2);
 
 syms expr_th_2(f);
@@ -134,12 +134,9 @@ x_3_decale = filter(h_3, 1, Suite_diracs_3_decale);
 x_3=x_3_decale(floor(N/2)+1:end);
 
     %DSP
-mod_3_DSP = fftshift(abs(fft(xcorr(x_3,'unbiased'))));
+mod_3_DSP = fftshift(abs(fft(xcorr(x_3,'unbiased'),1024)));
 plage_module_3=(-Fe/2:Fe/(length(mod_3_DSP)-1):Fe/2);
 syms expr_th_3(f);
-%mod_3_DSP_th = (var(mapping_3)*Fe/Ns_3).*...
-%((Ns_3/Fe).*(abs(plage_module_3)<=(1-alpha)*Fe/(2*Ns_3)) ...
-%+ (Ns_3/(2*Fe))*(1+cos( (pi * Ns_3 / (Fe * alpha))*(abs(plage_module_3.*((abs(plage_module_3)>=(1-alpha)*Fe/(2*Ns_3)) & (abs(plage_module_3)<=(1+alpha)*Fe/(2*Ns_3))))- ((1-alpha)*Fe )/ (2*Ns_3) ))).*((abs(plage_module_3)>=(1-alpha)*Fe/(2*Ns_3)) & (abs(plage_module_3)<=(1+alpha)*Fe/(2*Ns_3))));
 
 expr_th_3(f) = piecewise( abs(f)<=(1-alpha)*Fe/(2*Ns_3), (var(mapping_3)*Fe/Ns_3).*(Ns_3/Fe),...
 (abs(f)>=(1-alpha)*Fe/(2*Ns_3)) & (abs(f)<=(1+alpha)*Fe/(2*Ns_3)),(var(mapping_3)*Fe/Ns_3).* (Ns_3/(2*Fe))*(1+cos( (pi * Ns_3 / (Fe * alpha))*(abs(f)- ((1-alpha)*Fe )/ (2*Ns_3) ))),...
@@ -175,7 +172,6 @@ legend([s1_3, s2_3],"Valeur pratique","Valeur théorique");
 title("DSP du modulateur 3");
 xlabel('Hz');
 ylabel('Module TFD');
-s2_3 = semilogy(plage_module_3, mod_3_DSP_th,'r','Linewidth',1);
 %% Comparaison
 
 % Affichage
