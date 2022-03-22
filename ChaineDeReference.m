@@ -3,7 +3,7 @@ close all;
 clear;
 
 %% Variables initiales
-nb_bits = 100;
+nb_bits = 100000;
 info_binaire = randi([0,1], 1,nb_bits);
 Fe = 24000;
 Rb = 3000;
@@ -57,17 +57,33 @@ ylabel('Module TFD');
 %% Canal de Transmission
 
 %Bruit
-N0 = [0.00000001 0.0000001 0.000001 0.00001 0.0001 0.001 0.01 0.1 1];
+N0 = 0.001;
 P_x = mean(abs(x).^2);
-E_b = [P_x*Tb P_x*Tb P_x*Tb P_x*Tb P_x*Tb P_x*Tb P_x*Tb P_x*Tb P_x*Tb];
-Sigma_n = sqrt((P_x*Ns)/(2*log2(M)*E_b/N0));
-bruit = Sigma_n*randn(1, length(x));
+E_b = P_x*Tb;
 
-x_bruite = x + bruit;
+
+
 
 E_bN0Db = 10*log10(E_b./N0);
 
+%Calcul TEB simulé
+Eb_Db = 0:0.1:8;
+TEB = zeros(1, 9);
 
+for i = 1:81
+    Sigma_n = sqrt((P_x*Ns)/(2*log2(M)*Eb_Db(i)));
+    bruit = Sigma_n*randn(1, length(x));
+    x_bruite = x + bruit;
+    hr = ones(1,Ns);
+    z = filter(hr, 1, x_bruite);
+    n0 = Ns;
+    z_echant = z(n0:Ns:end);
+    info_bin_rec = z_echant > 0;
+    TEB(i) = sum(abs(info_bin_rec-info_binaire))/length(info_binaire);
+end;
+figure;
+semilogy(Eb_Db, TEB);
+title('TEB simulé');
 %% Demodulateur
 
 %Filtrage de réception
@@ -103,5 +119,3 @@ taux_erreur_binaire_1 = sum(abs(info_bin_rec_1-info_binaire))/length(info_binair
 fprintf("Taux d'erreur pour n0 = %.1f $%f.\n", n0, taux_erreur_binaire_1);
 
 
-figure;
-plot(E_bN0Db, taux_erreur_binaire_1);
