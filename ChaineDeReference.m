@@ -68,10 +68,10 @@ E_bN0Db = 10*log10(E_b./N0);
 
 %Calcul TEB simulé
 Eb_Db = 0:0.1:8;
-TEB = zeros(1, 9);
+TEB = [];
 
-for i = 1:81
-    Sigma_n = sqrt((P_x*Ns)/(2*log2(M)*Eb_Db(i)));
+for i = Eb_Db
+    Sigma_n = sqrt((P_x*Ns)/(2*log2(M)*10.^(i/10)));
     bruit = Sigma_n*randn(1, length(x));
     x_bruite = x + bruit;
     hr = ones(1,Ns);
@@ -79,7 +79,7 @@ for i = 1:81
     n0 = Ns;
     z_echant = z(n0:Ns:end);
     info_bin_rec = z_echant > 0;
-    TEB(i) = sum(abs(info_bin_rec-info_binaire))/length(info_binaire);
+    TEB = [TEB sum(abs(info_bin_rec-info_binaire))/length(info_binaire)];
 end;
 figure;
 semilogy(Eb_Db, TEB);
