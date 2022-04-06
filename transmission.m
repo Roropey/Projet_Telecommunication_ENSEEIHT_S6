@@ -6,7 +6,7 @@ h = ones(1,Fe/Rb);
 
 % Calculs
 mapping = information_entree.*(a(2) - a(1)) + a(1);
-Suite_diracs = kron(mapping, [1 zeros(1, (Fe/Rb)-1)]);
+Suite_diracs = kron(mapping, [1 zeros(1, Ns-1)]);
 x = filter(h, 1, Suite_diracs);
 
 %% Canal de Transmission
@@ -22,14 +22,13 @@ x_bruite = x + bruit;
 %% Demodulateur
 
 %Filtrage de réception
-hr = ones(1,Fe/Rb);
+hr = ones(1,Ns);
 z = filter(hr, 1, x_bruite);
 
 %Echantillonage
-z_echant = z(1:Fe/Rb:end);
 
-n0 = Fe/Rb;
-z_echant = z(n0:Fe/Rb:end);
+n0 = Ns;
+z_echant = z(n0:Ns:end);
 information_sortie = z_echant > 0;
 
 end
