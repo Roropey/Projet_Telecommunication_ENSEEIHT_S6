@@ -1,22 +1,22 @@
 %% Nettoyage
 close all;
-clear;
+%clear;
 
 %% Variables initiales
 nb_bits = 10000;
-seuil_erreur = 100;
+seuil_erreur = 1000;
 Fe = 24000;
 Rb = 3000;
 N = 101;
 a = [-1 1];
 h = ones(1,Fe/Rb);
 hr = ones(1,Fe/Rb);
-hr(length(hr)/2+1:length(hr)) = 0
+hr(length(hr)/2+1:length(hr)) = 0;
 n0 = Fe/Rb;
 
 %% Sans bruit
 fprintf("Sans bruit\n");
-[info_binaire_env_sans_bruit info_binaire_recu_sans_bruit x y z] = transmission(Fe,Rb,N,a,nb_bits,-1,n0,h,0,hr);
+[info_binaire_env_sans_bruit, info_binaire_recu_sans_bruit, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,-1,n0,h,0,hr);
 
 mod_DSP = fftshift(abs(fft(xcorr(x,'unbiased'))));
 plage_module=(-Fe/2:Fe/(length(mod_DSP)-1):Fe/2);
@@ -67,40 +67,40 @@ plot((0:(2*(Fe/Rb-1)/Fe)/(length(g)-1):2*((Fe/Rb)-1)/Fe),g);
 figure('Name',"Diagramme de l'oeil");
 plot(oeil);
 
-fprintf("Taux d'erreur pour n0 = %.1f %f.\n", n0, taux_erreur_binaire);
+fprintf("Taux d'erreur pour n0 = %.1f : %.4f.\n", n0, taux_erreur_binaire);
 
 %% Avec bruit
 fprintf("Avec bruit\n");
 
-TEB = [];
-E_bN0Db = 0:0.01:8; 
-hr
+TEB_5_3 = [];
+E_bN0dB_3 = 0:0.5:8; 
 % Calculs
-for k=E_bN0Db
+for k=E_bN0dB_3
     nb_bits_faux = 0;
     nb_bits_tot = 0;
     while nb_bits_faux < seuil_erreur
-        [info_binaire_env info_binaire_recu x y z] = transmission(Fe,Rb,N,a,nb_bits,k,n0,h,0,hr);
+        [info_binaire_env, info_binaire_recu, ~, ~, ~] = transmission(Fe,Rb,N,a,nb_bits,k,n0,h,0,hr);
         nb_bits_faux = sum(abs(info_binaire_recu-info_binaire_env)) + nb_bits_faux;
         nb_bits_tot = nb_bits_tot + nb_bits;
     end;
-    TEB = [TEB nb_bits_faux/nb_bits_tot];
+    TEB_5_3 = [TEB_5_3 nb_bits_faux/nb_bits_tot];
 end;
 
 %% Théorique
 
-%Sigma_n_th = sqrt((Fe/Rb)./(2*log2(length(a))*10.^(E_bN0Db/10)));
+%Sigma_n_th = sqrt((Fe/Rb)./(2*log2(length(a))*10.^(E_bN0dB/10)));
 %TEB_th_tr = qfunc(Sigma_n_th);
 
-TEB_th = 2*((length(a)-1)/(length(a)*log2(length(a)))).*qfunc(sqrt(((6*log2(length(a)))/(length(a)*length(a)-1)).*10.^(E_bN0Db/10)));
+%TEB_th = 2*((length(a)-1)/(length(a)*log2(length(a)))).*qfunc(sqrt(((6*log2(length(a)))/(length(a)*length(a)-1)).*10.^(E_bN0dB/10)));
+TEB_th = qfunc(sqrt(10.^(E_bN0dB_3/10)));
 
 %% Affichage sans bruit
 figure;
-s1 = semilogy(E_bN0Db, TEB);
+s1 = semilogy(E_bN0dB_3, TEB_5_3);
 hold on;
 
-s2 = semilogy(E_bN0Db,TEB_th);
-%s3 = semilogy(E_bN0Db,TEB_th_tr);
+s2 = semilogy(E_bN0dB_3,TEB_th);
+%s3 = semilogy(E_bN0dB,TEB_th_tr);
 
 legend([s1, s2],"Valeur pratique","Valeur théorique");
 hold off;
@@ -108,3 +108,5 @@ xlabel('Eb/N0 (dB)');
 ylabel('TEB');
 title('TEB simulé');
 
+%clearvars -except TEB_5_3 E_bN0dB_3;
+%save Chaine_5_3;
