@@ -17,7 +17,7 @@ n0 = Fe/Rb;
 
 %% Sans bruit
 fprintf("Sans bruit\n");
-[info_binaire_env_sans_bruit, info_binaire_recu_sans_bruit, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,-1,n0,h,0,hr);
+[info_binaire_env_sans_bruit, info_binaire_recu_sans_bruit, ~, ~, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,-1,n0,h,0,hr);
 
 mod_DSP = fftshift(abs(fft(xcorr(x,'unbiased'))));
 plage_module=(-Fe/2:Fe/(length(mod_DSP)-1):Fe/2);
@@ -81,7 +81,7 @@ for k=E_bN0dB_2
     nb_bits_faux = 0;
     nb_bits_tot = 0;
     while nb_bits_faux < seuil_erreur
-        [info_binaire_env, info_binaire_recu, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,k,n0,h,0,hr);
+        [info_binaire_env, info_binaire_recu, ~, ~, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,k,n0,h,0,hr);
         nb_bits_faux = sum(abs(info_binaire_recu-info_binaire_env)) + nb_bits_faux;
         nb_bits_tot = nb_bits_tot + nb_bits;
     end;

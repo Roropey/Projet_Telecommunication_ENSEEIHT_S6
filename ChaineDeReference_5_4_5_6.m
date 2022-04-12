@@ -9,20 +9,20 @@ Fe = 24000;
 Rb = 3000;
 N = 101;
 a = [-3 -1 1 3];
-h = ones(1,Fe/Rb);
-hr = ones(1,Fe/Rb);
-n0 = Fe/Rb;
+h = ones(1,2*Fe/Rb);
+hr = ones(1,2*Fe/Rb);
+n0 = 2*Fe/Rb;
 
 %% Sans bruit
 fprintf("Sans bruit\n");
-[info_binaire_env_sans_bruit, info_binaire_recu_sans_bruit, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,-1,n0,h,0,hr);
+[info_binaire_env_sans_bruit, info_binaire_recu_sans_bruit, ~, ~, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,-1,n0,h,0,hr);
 
 mod_DSP = fftshift(abs(fft(xcorr(x,'unbiased'))));
 plage_module=(-Fe/2:Fe/(length(mod_DSP)-1):Fe/2);
 
 g = conv(h,hr);
 
-oeil = reshape(z, 2*(Fe/Rb), length(z)/(2*(Fe/Rb)));
+oeil = reshape(z, 4*(Fe/Rb), length(z)/(4*(Fe/Rb)));
 
 taux_erreur_binaire = sum(abs(info_binaire_recu_sans_bruit-info_binaire_env_sans_bruit))/length(info_binaire_env_sans_bruit);
 
@@ -72,17 +72,26 @@ fprintf("Taux d'erreur pour n0 = %.1f : %.4f.\n", n0, taux_erreur_binaire);
 fprintf("Avec bruit\n");
 
 TEB_5_4 = [];
+TES_5_4 = [];
 E_bN0dB_4 = 0:0.5:8; 
 % Calculs
-for k=E_bN0dB_3
+for k=E_bN0dB_4
     nb_bits_faux = 0;
     nb_bits_tot = 0;
-    while nb_bits_faux < seuil_erreur
-        [info_binaire_env, info_binaire_recu, ~, ~, ~] = transmission(Fe,Rb,N,a,nb_bits,k,n0,h,0,hr);
+    nb_symb_faux = 0;
+    nb_symb_tot = 0;
+    while (nb_bits_faux < seuil_erreur) & (nb_symb_faux < seuil_erreur)
+        [info_binaire_env, info_binaire_recu, symbole_env, symbole_recu, ~, ~, ~] = transmission(Fe,Rb,N,a,nb_bits,k,n0,h,0,hr);
+        
+        nb_symb_faux = sum(symbole_recu ~= symbole_env) + nb_symb_faux;
         nb_bits_faux = sum(abs(info_binaire_recu-info_binaire_env)) + nb_bits_faux;
+        
         nb_bits_tot = nb_bits_tot + nb_bits;
+        nb_symb_tot = nb_symb_tot + length(symbole_env);
+
     end;
     TEB_5_4 = [TEB_5_4 nb_bits_faux/nb_bits_tot];
+    TES_5_4 = [TES_5_4 nb_symb_faux/nb_symb_tot];
 end;
 
 %% Théorique
@@ -92,16 +101,28 @@ end;
 
 TEB_th = 2*((length(a)-1)/(length(a)*log2(length(a)))).*qfunc(sqrt(((6*log2(length(a)))/(length(a)*length(a)-1)).*10.^(E_bN0dB_4/10)));
 %TEB_th = qfunc(sqrt(10.^(E_bN0dB_3/10)));
+TES_th = 2*((length(a)-1)/(length(a))).*qfunc(sqrt(((6*log2(length(a)))/(length(a)*length(a)-1)).*10.^(E_bN0dB_4/10)));
+%TES_th = (3/2).*qfunc(sqrt((4/5).*10.^(E_bN0dB_4/10)));
+%% Affichage avec bruit
 
-%% Affichage sans bruit
 figure;
-s1 = semilogy(E_bN0dB_4, TEB_5_4);
+s1_TES = semilogy(E_bN0dB_4,TES_5_4);
+hold on;
+s2_TES = semilogy(E_bN0dB_4,TES_th);
+legend([s1_TES, s2_TES],"Valeur pratique","Valeur théorique");
+hold off;
+xlabel('Eb/N0 (dB)');
+ylabel('TES');
+title('TES simulé');
+
+figure;
+s1_TEB = semilogy(E_bN0dB_4, TEB_5_4);
 hold on;
 
-s2 = semilogy(E_bN0dB_4,TEB_th);
+s2_TEB = semilogy(E_bN0dB_4,TEB_th);
 %s3 = semilogy(E_bN0dB,TEB_th_tr);
 
-legend([s1, s2],"Valeur pratique","Valeur théorique");
+legend([s1_TEB, s2_TEB],"Valeur pratique","Valeur théorique");
 hold off;
 xlabel('Eb/N0 (dB)');
 ylabel('TEB');
