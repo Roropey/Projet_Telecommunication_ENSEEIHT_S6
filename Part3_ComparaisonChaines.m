@@ -6,12 +6,12 @@ clear;
 
 
 %try
-    fprintf("Execution 5_2\n");
-    ChaineDeReference_5_2;
-    fprintf("Execution 5_3\n");
-    ChaineDeReference_5_3;
-    fprintf("Execution 5_4_5_6\n");
-    ChaineDeReference_5_4_5_6;
+    fprintf("Execution de la chaîne de référence\n");
+    Part3_ChaineDeReference;
+    fprintf("Execution de la première chaîne étudiée\n");
+    Part3_PremiereChaineEtudiee;
+    fprintf("Execution de la seconde chaîne étudiée\n");
+    Part3_DeuxiemeChaineEtudiee;
     close all;
     %load Chaine_5_2;
     %load Chaine_5_3;
@@ -28,7 +28,7 @@ s1 = semilogy(E_bN0dB_2, TEB_5_2);
 hold on;
 s2 = semilogy(E_bN0dB_3,TEB_5_3);
 s3 = semilogy(E_bN0dB_4,TEB_5_4);
-legend([s1, s2, s3],"Valeur 5_2","Valeur 5_3","Valeur 5_4_5_6");
+legend([s1, s2, s3],"Valeur de référence","Valeur première étude","Valeur deuxième étude");
 hold off;
 xlabel('Eb/N0 (dB)');
 ylabel('TEB');
