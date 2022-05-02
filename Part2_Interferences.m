@@ -84,7 +84,7 @@ plot((0:1/Fe:2*(Ns-1)/Fe),g);
 title('Réponse impulsionnel modulateur+démodulateur');
 
 subplot(2,2,4);
-plot(oeil);
+plot(oeil(:,1:2*Ns));
 title("Diagramme de l'oeil");
 
 n0_1 = Ns;
@@ -130,7 +130,7 @@ subplot(2,2,1);
 plot(rep_impul_glob_1);
 title('Réponse impulsionnelle globale');
 subplot(2,2,2);
-plot(oeil_canal_1);
+plot(oeil_canal_1(:,1:2*Ns));
 title("Diagramme de l'oeil");
 
 subplot(2,2,[3 4]);
@@ -166,7 +166,7 @@ subplot(2,2,1);
 plot(rep_impul_glob_2);
 title('Réponse impulsionnelle globale');
 subplot(2,2,2);
-plot(oeil_canal_2);
+plot(oeil_canal_2(:,1:2*Ns));
 title("Diagramme de l'oeil");
 
 subplot(2,2,[3 4]);

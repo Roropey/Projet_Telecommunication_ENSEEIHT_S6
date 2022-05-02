@@ -1,6 +1,6 @@
 %% Nettoyage
 close all;
-%clear;
+clear;
 
 %% Variables initiales
 nb_bits = 10000;
@@ -66,7 +66,7 @@ figure('Name','Convolution','Position', [100 100 1300 600]);
 plot((0:(2*(Fe/Rb-1)/Fe)/(length(g)-1):2*((Fe/Rb)-1)/Fe),g);
 
 figure('Name',"Diagramme de l'oeil",'Position', [100 100 1300 600]);
-plot(oeil);
+plot(oeil(:,1:2*(Fe/Rb)));
 
 fprintf("Taux d'erreur pour n0 = %.1f : %.4f.\n", n0, taux_erreur_binaire);
 
@@ -74,6 +74,7 @@ fprintf("Taux d'erreur pour n0 = %.1f : %.4f.\n", n0, taux_erreur_binaire);
 fprintf("Avec bruit\n");
 
 TEB_5_2 = [];
+Z_5_2 = [];
 E_bN0dB_2 = 0:0.5:8; 
 
 % Calculs
@@ -81,29 +82,35 @@ for k=E_bN0dB_2
     nb_bits_faux = 0;
     nb_bits_tot = 0;
     while nb_bits_faux < seuil_erreur
-        [info_binaire_env, info_binaire_recu, ~, ~, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,k,n0,h,0,hr);
+        [info_binaire_env, info_binaire_recu, ~, ~, ~, ~, z] = transmission(Fe,Rb,N,a,nb_bits,k,n0,h,0,hr);
         nb_bits_faux = sum(abs(info_binaire_recu-info_binaire_env)) + nb_bits_faux;
         nb_bits_tot = nb_bits_tot + nb_bits;
     end;
+    Z_5_2 = [Z_5_2 z'];
     TEB_5_2 = [TEB_5_2 nb_bits_faux/nb_bits_tot];
 end;
 
 %% Théorique
 
-%Sigma_n_th = sqrt((Fe/Rb)./(2*log2(length(a))*10.^(E_bN0dB/10)));
-%TEB_th_tr = qfunc(Sigma_n_th);
-
-%TEB_th = 2*((length(a)-1)/(length(a)*log2(length(a)))).*qfunc(sqrt(((6*log2(length(a)))/(length(a)*length(a)-1)).*10.^(E_bN0dB/10)));
 TEB_th = qfunc(sqrt(2.*10.^(E_bN0dB_2/10)));
 
-%% Affichage sans bruit
+%% Affichage avec bruit
+
+nb_diagramme_oeil = 4;
+
+figure('Name',"Différents diagrammes de l'oeil",'Position', [100 100 1300 600]);
+for i=1:nb_diagramme_oeil
+    subplot(floor(sqrt(nb_diagramme_oeil)),ceil(sqrt(nb_diagramme_oeil)),i);
+    oeil_bruit =  reshape(Z_5_2(:,floor(i*size(Z_5_2,2)/nb_diagramme_oeil)), 2*(Fe/Rb), length(Z_5_2(:,i*floor(size(Z_5_2,2)/nb_diagramme_oeil)))/(2*(Fe/Rb)));
+    plot(oeil_bruit(:,1:2*(Fe/Rb)));
+    title(strcat("Diagramme de l'oeil pour E_b/N_0 ",num2str(E_bN0dB_2(floor(i*size(Z_5_2,2)/nb_diagramme_oeil)))," dB"));
+end;
+
 figure('Name', "Taux Erreur Binaire",'Position', [100 100 1300 600]);
 s1 = semilogy(E_bN0dB_2, TEB_5_2);
 hold on;
 
 s2 = semilogy(E_bN0dB_2,TEB_th);
-%s3 = semilogy(E_bN0dB,TEB_th_tr);
-%s3 = semilogy(E_bN0dB,TEB_th_bis);
 
 legend([s1, s2],"Valeur pratique","Valeur théorique");
 hold off;
@@ -111,5 +118,5 @@ xlabel('Eb/N0 (dB)');
 ylabel('TEB');
 title('TEB simulé et théorique');
 
-%clearvars -except TEB_5_2 E_bN0dB_2;
-%save Chaine_5_2;
+clearvars -except TEB_5_2 E_bN0dB_2;
+save Chaine_5_2;
