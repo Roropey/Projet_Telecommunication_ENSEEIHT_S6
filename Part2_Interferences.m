@@ -26,7 +26,7 @@ mod_DSP = fftshift(abs(fft(xcorr(x,'unbiased'),1024)));
 plage_module=(-Fe/2:Fe/(length(mod_DSP)-1):Fe/2);
 
 % Affichage
-figure('Name',"Modulateur");
+figure('Name',"Modulateur",'Position', [100 100 1300 600]);
 
 Bit = [0;1];
 Mapping = [a_0;a_1];
@@ -71,7 +71,7 @@ g = conv(h,hr);
 oeil = reshape(z, 2*Ns, length(z)/(2*Ns));
 
 %Affichage
-figure('Name',"Sans canal");
+figure('Name',"Sans canal",'Position', [100 100 1300 600]);
 subplot(2,2,[1 2]);
 plot((0:1/Fe:(Ns*nb_bits-1)/Fe),z);
 title("Signal en sortie de filtre de réception");
@@ -125,7 +125,7 @@ oeil_canal_1 = reshape(z_canal_1, 2*Ns, length(z_canal_1)/(2*Ns));
 Hc_1 = fftshift(abs(fft(xcorr(hc_1,'unbiased'),1024)));
 plage_module_H_1=(-Fe/2:Fe/(length(Hc_1)-1):Fe/2);
 
-figure('Name','Passage par canal 8000 Hz');
+figure('Name','Passage par canal 8000 Hz','Position', [100 100 1300 600]);
 subplot(2,2,1);
 plot(rep_impul_glob_1);
 title('Réponse impulsionnelle globale');
@@ -161,7 +161,7 @@ oeil_canal_2 = reshape(z_canal_2, 2*Ns, length(z_canal_2)/(2*Ns));
 Hc_2 = fftshift(abs(fft(xcorr(hc_2,'unbiased'),1024)));
 plage_module_H_2=(-Fe/2:Fe/(length(Hc_2)-1):Fe/2);
 
-figure('Name','Passage par canal 1000 Hz');
+figure('Name','Passage par canal 1000 Hz','Position', [100 100 1300 600]);
 subplot(2,2,1);
 plot(rep_impul_glob_2);
 title('Réponse impulsionnelle globale');

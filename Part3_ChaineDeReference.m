@@ -30,7 +30,7 @@ taux_erreur_binaire = sum(abs(info_binaire_recu_sans_bruit-info_binaire_env_sans
 
 %% Affichage sans bruit
 
-figure('Name',"Modulateur");
+figure('Name',"Modulateur",'Position', [100 100 1300 600]);
 
 Bit = [0;1];
 Mapping = a';
@@ -56,16 +56,16 @@ title("DSP du modulateur");
 xlabel('Hz');
 ylabel('Module TFD');
 
-figure('Name','Signal filtré');
+figure('Name','Signal filtré','Position', [100 100 1300 600]);
 plot((0:1/Fe:((Fe/Rb)*nb_bits-1)/Fe),z);
 title("Signal en sortie de filtre de réception");
 xlabel("Temps")
 ylabel("Amplitude");
 
-figure('Name','Convolution');
+figure('Name','Convolution','Position', [100 100 1300 600]);
 plot((0:(2*(Fe/Rb-1)/Fe)/(length(g)-1):2*((Fe/Rb)-1)/Fe),g);
 
-figure('Name',"Diagramme de l'oeil");
+figure('Name',"Diagramme de l'oeil",'Position', [100 100 1300 600]);
 plot(oeil);
 
 fprintf("Taux d'erreur pour n0 = %.1f : %.4f.\n", n0, taux_erreur_binaire);
@@ -97,7 +97,7 @@ end;
 TEB_th = qfunc(sqrt(2.*10.^(E_bN0dB_2/10)));
 
 %% Affichage sans bruit
-figure;
+figure('Name', "Taux Erreur Binaire",'Position', [100 100 1300 600]);
 s1 = semilogy(E_bN0dB_2, TEB_5_2);
 hold on;
 
@@ -109,7 +109,7 @@ legend([s1, s2],"Valeur pratique","Valeur théorique");
 hold off;
 xlabel('Eb/N0 (dB)');
 ylabel('TEB');
-title('TEB simulé');
+title('TEB simulé et théorique');
 
 %clearvars -except TEB_5_2 E_bN0dB_2;
 %save Chaine_5_2;

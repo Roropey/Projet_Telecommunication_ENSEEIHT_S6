@@ -23,7 +23,7 @@ clear;
 
 %% Affichage de comparaison
 
-figure;
+figure('Name',"Comparaison des différents taux d'erreur binaires",'Position', [100 100 1300 600]);
 s1 = semilogy(E_bN0dB_2, TEB_5_2);
 hold on;
 s2 = semilogy(E_bN0dB_3,TEB_5_3);
