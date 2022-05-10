@@ -12,7 +12,7 @@ end
 %% Filtrage
 %Décalage pour prendre en compte le délais
 signal_decale=[signal;zeros(((ordre_de_filtrage-1)/2),1)]; 
-%{entre le dirac à 0 (ce qui nous intéresse) et le début de la réponse
+%entre le dirac à 0 (ce qui nous intéresse) et le début de la réponse
 %impulsionnelle, il se déroule un délais
 
 %Filtrage réel
