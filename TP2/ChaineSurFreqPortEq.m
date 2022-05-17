@@ -12,7 +12,7 @@ nb_bits = 100;
 %info_binaire(10)=1;
 info_binaire = randi([0,1], 1,nb_bits);
 N = 201;
-seuil_erreur = 10;
+seuil_erreur = 1000;
 
 %% Modulateur
 
@@ -21,19 +21,19 @@ Ns = (Fe/Rb)*2;
 
 % 00
 a_00 = -1;
-b_00 = -1;
+b_00 = 1;
 
 % 01
 a_01 = -1;
-b_01 = 1;
+b_01 = -1;
 
 % 11
-a_11 = 1;
+a_11 = -1;
 b_11 = 1;
 
 % 10
 a_10 = 1;
-b_10 = -1;
+b_10 = 1;
 
 h = rcosdesign(alpha, (N-1)/Ns,Ns);
 M = 4;
@@ -57,23 +57,13 @@ Q = imag(xe);
 x = real(xe .* exp(2*1i*pi*Fp*t));
 
 % DSP
-DSP = fftshift(abs(fft(xcorr(x,'unbiased'),10000)));
+DSP = fftshift(abs(fft(xcorr(xe,'unbiased'),10000)));
 plage=(-Fe/2 : Fe/2 - 1) * Fe/(length(DSP)-1);
 
 syms expr_th_xe(f);
 expr_th_xe(f) = piecewise( abs(f)<=(1-alpha)*Fe/(2*Ns), (var(mapping)*Fe/Ns).*(Ns/Fe),...
 (abs(f)>=(1-alpha)*Fe/(2*Ns)) & (abs(f)<=(1+alpha)*Fe/(2*Ns)),(var(mapping)*Fe/Ns).* (Ns/(2*Fe))*(1+cos( (pi * Ns / (Fe * alpha))*(abs(f)- ((1-alpha)*Fe )/ (2*Ns) ))),...
 (abs(f)<(1-alpha)*Fe/(2*Ns)) | (abs(f)>(1+alpha)*Fe/(2*Ns)),0);
-syms expr_th_x(f);
-expr_th_x(f) = 0.25*( ...
-piecewise( abs(f-Fp)<=(1-alpha)*Fe/(2*Ns), (var(mapping)*Fe/Ns).*(Ns/Fe),...
-(abs(f-Fp)>=(1-alpha)*Fe/(2*Ns)) & (abs(f-Fp)<=(1+alpha)*Fe/(2*Ns)),(var(mapping)*Fe/Ns).* (Ns/(2*Fe))*(1+cos( (pi * Ns / (Fe * alpha))*(abs(f-Fp)- ((1-alpha)*Fe )/ (2*Ns) ))),...
-(abs(f-Fp)<(1-alpha)*Fe/(2*Ns)) | (abs(f-Fp)>(1+alpha)*Fe/(2*Ns)),0) + ...
-piecewise( abs(-f-Fp)<=(1-alpha)*Fe/(2*Ns), (var(mapping)*Fe/Ns).*(Ns/Fe),...
-(abs(-f-Fp)>=(1-alpha)*Fe/(2*Ns)) & (abs(-f-Fp)<=(1+alpha)*Fe/(2*Ns)),(var(mapping)*Fe/Ns).* (Ns/(2*Fe))*(1+cos( (pi * Ns / (Fe * alpha))*(abs(-f-Fp)- ((1-alpha)*Fe )/ (2*Ns) ))),...
-(abs(-f-Fp)<(1-alpha)*Fe/(2*Ns)) | (abs(-f-Fp)>(1+alpha)*Fe/(2*Ns)),0)...
-);
-
 
 
 % Affichage
@@ -91,19 +81,14 @@ title('Q(t)');
 xlabel('Temps (s)');
 ylabel('Amplitude');
 
-subplot(2,2,3);
-plot(t,x);
-title('Signal modulé sur porteuse en temporel');
-xlabel('Temps (s)');
-ylabel('Amplitude');
 
-subplot(2,2,4);
+subplot(2,2,[3 4]);
 semilogy(plage, DSP);
 
 figure('Name',"comparaison DSP");
 s1_3 = semilogy(plage,DSP);
 hold on
-s2_3 = fplot(expr_th_x, [plage(1) plage(length(plage))]);
+s2_3 = fplot(expr_th_xe, [plage(1) plage(length(plage))]);
 set(gca,'YScale','log');
 hold off;
 legend([s1_3, s2_3],"Valeur pratique","Valeur théorique");
@@ -113,44 +98,10 @@ ylabel('Module TFD');
 
 
 
-% Retour en bande de base
-xcos = x.*cos(2*pi*Fp*t);
-xsin = x.*sin(2*pi*Fp*t);
-
-% Filtrage passe-bas
-Fc = 2200; %3500
-Plagef = ((-50:50)'*(1/Fe));
-Filt_PB = 2*Fc*sinc(2*Fc*Plagef)*(1/Fe);
-%xcos_filt = filter(Filt_PB, 1, xcos);
-xcos_filt = filtrage(xcos',N,Fc,Fe,"bas",true)';
-
-%xsin_filt = filter(Filt_PB, 1, xsin);
-xsin_filt = filtrage(xsin',N,Fc,Fe,"bas",false)';
-
-% Affichage
-figure('Name', "Filtrage Passe-Bas");
-subplot(2,2,1);
-plot(xcos_filt);
-title("Xcos filtré, en temporel");
-xlabel("Temps");
-ylabel("Amplitude");
-subplot(2,2,3);
-plot(xsin_filt);
-title("Xsin filtré, en temporel");
-xlabel("Temps");
-ylabel("Amplitude");
-
-DSP_cos = fftshift(abs(fft(xcorr(xcos_filt,'unbiased'),10000)));
-subplot(2,2,2);
-semilogy(plage, DSP_cos);
-title("Xcos filtré, en fréquentiel");
-DSP_sin = fftshift(abs(fft(xcorr(xsin_filt,'unbiased'),10000)));
-subplot(2,2,4);
-semilogy(plage, DSP_sin);
-title("Xsin filtré, en fréquentiel");
 
 
-x_demod = xcos_filt - xsin_filt.*1i;
+
+x_demod = xe;
 
 % Démodulation
 hr = h; %rcosdesign(alpha, (N-1)/Ns,Ns);
@@ -168,9 +119,9 @@ plot(oeil_imag(:,1:4*(Fe/Rb)));
 
 n0 = 1;
 z_echant = z(n0:Ns:end);
-z_reel_recu = real(z_echant) > 0;
-z_imag_recu = imag(z_echant) > 0;
-z_recu = [z_reel_recu; z_imag_recu];
+z_fort = imag(z_echant) > 0;
+z_faible = imag(z_echant).*real(z_echant) < 0;
+z_recu = [z_fort; z_faible];
 z_recu_reshape = reshape(z_recu, 1, nb_bits);
 
 taux_erreur_binaire = sum(abs(info_binaire-z_recu_reshape))/length(info_binaire);
@@ -179,11 +130,7 @@ taux_erreur_binaire = sum(abs(info_binaire-z_recu_reshape))/length(info_binaire)
 fprintf("Taux d'erreur sans bruit pour n0 = %.1f : %.4f.\n", n0, taux_erreur_binaire);
 
 
-figure('Name',"Comparaison partie réelle");p1=plot(t,I);hold on;p2=plot(t,xcos_filt);hold off; legend([p1, p2],"Signal I","Sortie filtre cos");
-figure('Name',"Comparaison partie immaginaire");p1=plot(t,Q);hold on;p2=plot(t,-xsin_filt);hold off;legend([p1, p2],"Signal Q","Sortie filtre sin");
 
-%figure();plot(imag(mapping));hold on;plot(imag(z_echant));hold off
-%figure();plot(imag(Suite_diracs));hold on;plot(imag(z));hold off
 
 %% Avec bruit
 
@@ -206,27 +153,19 @@ for E_bN0 = E_bN0db
         xe_decale = filter(h, 1, Suite_diracs_decale);
         xe = xe_decale(floor(N/2)+1:end);
         
-        x = real(xe .* exp(2*1i*pi*Fp*t));
+       
 
-        P_x =  mean(abs(x).^2);
-        Sigma_n = sqrt((P_x*2*Fe/Rb)/(2*log2(M)*10.^(E_bN0/10)));
-        bruit = Sigma_n*randn(1, length(x));
-        x_bruite = x + bruit;
+        P_re =  mean(abs(xe).^2);
+        Sigma_n = sqrt((P_re*2*Fe/Rb)/(2*log2(M)*10.^(E_bN0/10)));
+        bruit = Sigma_n*randn(1, length(x))+1i*Sigma_n*randn(1, length(x));
+        x_bruite = xe + bruit;
         %figure();subplot(2,2,1);plot(x);subplot(2,2,2);plot(bruit);subplot(2,2,[3 4]);p1=plot(x);hold on;p2=plot(bruit);hold off;legend([p1,p2],"x","bruit");
 
         
-        % Retour en bande de base
-        xcos = x_bruite.*cos(2*pi*Fp*t);
-        xsin = x_bruite.*sin(2*pi*Fp*t);
-
-        
-        % Filtrage passe-bas
-        Fc = 2200;
-        xcos_filt = filtrage(xcos',N,Fc,Fe,"bas",false)';
-        xsin_filt = filtrage(xsin',N,Fc,Fe,"bas",false)';
         
         
-        x_demod = xcos_filt - xsin_filt.*1i;
+        
+        x_demod = x_bruite;
         
         % Démodulation
         hr = h; %rcosdesign(alpha, (N-1)/Ns,Ns);
@@ -236,9 +175,9 @@ for E_bN0 = E_bN0db
         
         n0 = 1;
         z_echant = z(n0:Ns:end);
-        z_reel_recu = real(z_echant) > 0;
-        z_imag_recu = imag(z_echant) > 0;
-        z_recu = [z_reel_recu; z_imag_recu];
+        z_fort = imag(z_echant) > 0;
+        z_faible = imag(z_echant).*real(z_echant) < 0;
+        z_recu = [z_fort; z_faible];
         z_recu_reshape = reshape(z_recu, 1, nb_bits);
         
         
