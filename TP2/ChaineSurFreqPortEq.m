@@ -28,8 +28,8 @@ a_01 = -1;
 b_01 = -1;
 
 % 11
-a_11 = -1;
-b_11 = 1;
+a_11 = 1;
+b_11 = -1;
 
 % 10
 a_10 = 1;
@@ -119,8 +119,8 @@ plot(oeil_imag(:,1:4*(Fe/Rb)));
 
 n0 = 1;
 z_echant = z(n0:Ns:end);
-z_fort = imag(z_echant) > 0;
-z_faible = imag(z_echant).*real(z_echant) < 0;
+z_fort = real(z_echant) > 0;
+z_faible = imag(z_echant) < 0;
 z_recu = [z_fort; z_faible];
 z_recu_reshape = reshape(z_recu, 1, nb_bits);
 
@@ -175,8 +175,8 @@ for E_bN0 = E_bN0db
         
         n0 = 1;
         z_echant = z(n0:Ns:end);
-        z_fort = imag(z_echant) > 0;
-        z_faible = imag(z_echant).*real(z_echant) < 0;
+        z_fort = real(z_echant) > 0;
+        z_faible = imag(z_echant) < 0;
         z_recu = [z_fort; z_faible];
         z_recu_reshape = reshape(z_recu, 1, nb_bits);
         
