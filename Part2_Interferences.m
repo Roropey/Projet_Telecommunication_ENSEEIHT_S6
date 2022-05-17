@@ -71,21 +71,26 @@ g = conv(h,hr);
 oeil = reshape(z, 2*Ns, length(z)/(2*Ns));
 
 %Affichage
-figure('Name',"Sans canal",'Position', [100 100 1300 600]);
-subplot(2,2,[1 2]);
+figure('Name',"Sans canal",'Position', [100 100 1000 299]);
+%subplot(2,2,[1 2]);
 plot((0:1/Fe:(Ns*nb_bits-1)/Fe),z);
 title("Signal en sortie de filtre de réception");
 xlabel("Temps")
 ylabel("Amplitude");
-title("Signal filtré");
 
-subplot(2,2,3);
-plot((0:1/Fe:2*(Ns-1)/Fe),g);
-title('Réponse impulsionnel modulateur+démodulateur');
+%subplot(2,2,3);
+figure('Name',"Sans canal",'Position', [100 100 1000 600]);
+plot(g);
+title("Réponse impulsionnel modulateur+démodulateur");
+xlabel("Echantillons");
+ylabel("Amplitude");
 
-subplot(2,2,4);
+%subplot(2,2,4);
+figure('Name',"Sans canal",'Position', [100 100 1000 600]);
 plot(oeil(:,1:2*Ns));
 title("Diagramme de l'oeil");
+xlabel("Echantillons");
+ylabel("Amplitude")
 
 n0_1 = Ns;
 z_echant_1 = z(n0_1:Ns:end);
@@ -109,7 +114,7 @@ plage_module_HH=(-Fe/2:Fe/(length(H)-1):Fe/2);
 Hr = fft(xcorr(hr,'unbiased'),1024);
 n0_canal = floor(Ns/2)+floor(Ns/2)+floor(N/2);
 
-% BW = 8000 Hz
+%% BW = 8000 Hz
 
 fc_1 = 8000;
 
@@ -129,9 +134,13 @@ figure('Name','Passage par canal 8000 Hz','Position', [100 100 1300 600]);
 subplot(2,2,1);
 plot(rep_impul_glob_1);
 title('Réponse impulsionnelle globale');
+xlabel("Echantillons");
+ylabel("Amplitude");
 subplot(2,2,2);
 plot(oeil_canal_1(:,1:2*Ns));
 title("Diagramme de l'oeil");
+xlabel("Echantillons");
+ylabel("Amplitude");
 
 subplot(2,2,[3 4]);
 sH_1 = semilogy(plage_module_H_1,Hc_1);
@@ -140,13 +149,15 @@ sHH_1 = semilogy(plage_module_HH,fftshift(abs(Hr.*H)));
 hold off;
 legend([sH_1, sHH_1],"Réponse du canal","Réponse du modulateur+démodulateur");
 title("Réponses fréquentielles");
+xlabel("Hz");
+ylabel("Module TFD");
 
 z_echant_3 = z_canal_1(n0_canal:Ns:end);
 info_bin_rec_3 = z_echant_3 > 0;
 taux_erreur_binaire_3 = sum(abs(info_bin_rec_3(1:length(info_binaire))-info_binaire))/length(info_binaire);
 fprintf("Taux d'erreur pour n0 = %.1f avec un canal filtrant à %.1f Hz : $%f.\n", n0_canal, fc_1, taux_erreur_binaire_3);
 
-% BW = 1000 Hz
+%% BW = 1000 Hz
 fc_2 = 1000;
 
 hc_2 = (2*fc_2/Fe)*sinc(2*(fc_2/Fe)*[-(N-1)/2:(N-1)/2]);
@@ -165,9 +176,13 @@ figure('Name','Passage par canal 1000 Hz','Position', [100 100 1300 600]);
 subplot(2,2,1);
 plot(rep_impul_glob_2);
 title('Réponse impulsionnelle globale');
+xlabel("Echantillons");
+ylabel("Amplitude");
 subplot(2,2,2);
 plot(oeil_canal_2(:,1:2*Ns));
 title("Diagramme de l'oeil");
+xlabel("Echantillons");
+ylabel("Amplitude");
 
 subplot(2,2,[3 4]);
 sH_2 = semilogy(plage_module_H_2,Hc_2);
@@ -176,6 +191,8 @@ sHH_2 = semilogy(plage_module_HH,fftshift(abs(Hr.*H)));
 hold off;
 legend([sH_2, sHH_2],"Réponse du canal","Réponse du modulateur+démodulateur");
 title("Réponses fréquentielles");
+xlabel("Hz");
+ylabel("Module TFD");
 
 z_echant_4 = z_canal_2(n0_canal:Ns:end);
 info_bin_rec_4 = z_echant_4 > 0;
