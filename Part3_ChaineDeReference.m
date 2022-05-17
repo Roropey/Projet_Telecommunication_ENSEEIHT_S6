@@ -75,10 +75,24 @@ fprintf("Avec bruit\n");
 
 TEB_5_2 = [];
 Z_5_2 = [];
-E_bN0dB_2 = 0:0.5:8; 
+E_bN0dB_2_oeil = 4:4:16;
+E_bN0dB_2_TEB = 0:0.5:8;
+i = 1;
+figure('Name',"Différents diagrammes de l'oeil",'Position', [100 100 1300 600]);
+for k=E_bN0dB_2_oeil
+    [~, ~ , ~, ~, ~, ~, z] = transmission(Fe,Rb,N,a,nb_bits,k,n0,h,0,hr);
+    oeil_bruit = reshape(z, 2*(Fe/Rb), length(z)/(2*(Fe/Rb)));
+    subplot(2,2,i);
+    plot(oeil_bruit(:,1:100*(Fe/Rb)));
+    title(strcat("Diagramme de l'oeil pour E_b/N_0", num2str(k), "dB"));
+    xlabel("Echantillons");
+    ylabel("Amplitude");
+    i = i + 1;
+end;
+
 
 % Calculs
-for k=E_bN0dB_2
+for k=E_bN0dB_2_TEB
     nb_bits_faux = 0;
     nb_bits_tot = 0;
     while nb_bits_faux < seuil_erreur
@@ -92,25 +106,27 @@ end;
 
 %% Théorique
 
-TEB_th = qfunc(sqrt(2.*10.^(E_bN0dB_2/10)));
+TEB_th = qfunc(sqrt(2.*10.^(E_bN0dB_2_TEB/10)));
 
 %% Affichage avec bruit
 
 nb_diagramme_oeil = 4;
 
 figure('Name',"Différents diagrammes de l'oeil",'Position', [100 100 1300 600]);
-for i=1:nb_diagramme_oeil
-    subplot(floor(sqrt(nb_diagramme_oeil)),ceil(sqrt(nb_diagramme_oeil)),i);
-    oeil_bruit =  reshape(Z_5_2(:,floor(i*size(Z_5_2,2)/nb_diagramme_oeil)), 2*(Fe/Rb), length(Z_5_2(:,i*floor(size(Z_5_2,2)/nb_diagramme_oeil)))/(2*(Fe/Rb)));
-    plot(oeil_bruit(:,1:2*(Fe/Rb)));
-    title(strcat("Diagramme de l'oeil pour E_b/N_0 ",num2str(E_bN0dB_2(floor(i*size(Z_5_2,2)/nb_diagramme_oeil)))," dB"));
-end;
+%for i=1:nb_diagramme_oeil
+ %   subplot(floor(sqrt(nb_diagramme_oeil)),ceil(sqrt(nb_diagramme_oeil)),i);
+  %  oeil_bruit =  reshape(Z_5_2(:,floor(i*size(Z_5_2,2)/nb_diagramme_oeil)), 2*(Fe/Rb), length(Z_5_2(:,i*floor(size(Z_5_2,2)/nb_diagramme_oeil)))/(2*(Fe/Rb)));
+   % plot(oeil_bruit(:,1:100*(Fe/Rb)));
+    %title(strcat("Diagramme de l'oeil pour E_b/N_0 ",num2str(E_bN0dB_2(floor(i*size(Z_5_2,2)/nb_diagramme_oeil)))," dB"));
+    %xlabel("Echantillons");
+    %ylabel("Amplitude");
+%end;
 
 figure('Name', "Taux Erreur Binaire",'Position', [100 100 1300 600]);
-s1 = semilogy(E_bN0dB_2, TEB_5_2);
+s1 = semilogy(E_bN0dB_2_TEB, TEB_5_2);
 hold on;
 
-s2 = semilogy(E_bN0dB_2,TEB_th);
+s2 = semilogy(E_bN0dB_2_TEB,TEB_th);
 
 legend([s1, s2],"Valeur pratique","Valeur théorique");
 hold off;
@@ -118,5 +134,5 @@ xlabel('Eb/N0 (dB)');
 ylabel('TEB');
 title('TEB simulé et théorique');
 
-clearvars -except TEB_5_2 E_bN0dB_2;
+clearvars -except TEB_5_2 E_bN0dB_2_TEB;
 save Chaine_5_2;
