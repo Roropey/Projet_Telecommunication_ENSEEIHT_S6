@@ -63,9 +63,13 @@ ylabel("Amplitude");
 
 figure('Name','Convolution','Position', [100 100 1300 600]);
 plot((0:(2*(Fe/Rb-1)/Fe)/(length(g)-1):2*((Fe/Rb)-1)/Fe),g);
+xlabel('Temps');
+ylabel('Amplitudes');
 
 figure('Name',"Diagramme de l'oeil",'Position', [100 100 1300 600]);
 plot(oeil(:,1:2*(Fe/Rb)));
+xlabel('Echantillons');
+ylabel('Amplitude');
 
 fprintf("Taux d'erreur pour n0 = %.1f : %.4f.\n", n0, taux_erreur_binaire);
 
@@ -92,19 +96,32 @@ end;
 
 TEB_th = qfunc(sqrt(10.^(E_bN0dB_3/10)));
 
-%% Affichage sans bruit
+%% Affichage avec bruit
 
 nb_diagramme_oeil = 6;
-
+E_bN0dB_31_oeil = 4:4:16;
 figure('Name',"Différents diagrammes de l'oeil",'Position', [100 100 1300 600]);
-for i=1:nb_diagramme_oeil
-    subplot(floor(sqrt(nb_diagramme_oeil)),ceil(sqrt(nb_diagramme_oeil)),i);
-    oeil_bruit =  reshape(Z_5_3(:,floor(i*size(Z_5_3,2)/nb_diagramme_oeil)), 2*(Fe/Rb), length(Z_5_3(:,i*floor(size(Z_5_3,2)/nb_diagramme_oeil)))/(2*(Fe/Rb)));
-    plot(oeil_bruit(:,1:10*(Fe/Rb))); 
-    title(strcat("Diagramme de l'oeil pour E_b/N_0 ",num2str(E_bN0dB_3(floor(i*size(Z_5_3,2)/nb_diagramme_oeil)))," dB"));
+i = 1;
+for k=E_bN0dB_31_oeil
+    [~, ~ , ~, ~, ~, ~, z] = transmission(Fe,Rb,N,a,nb_bits,k,n0,h,0,hr);
+    oeil_bruit = reshape(z, 2*(Fe/Rb), length(z)/(2*(Fe/Rb)));
+    subplot(2,2,i);
+    plot(oeil_bruit(:,1:100*(Fe/Rb)));
+    title(strcat("Diagramme de l'oeil pour E_b/N_0", num2str(k), "dB"));
     xlabel("Echantillons");
     ylabel("Amplitude");
+    i = i + 1;
 end;
+
+%figure('Name',"Différents diagrammes de l'oeil",'Position', [100 100 1300 600]);
+%for i=1:nb_diagramme_oeil
+    %subplot(floor(sqrt(nb_diagramme_oeil)),ceil(sqrt(nb_diagramme_oeil)),i);
+    %oeil_bruit =  reshape(Z_5_3(:,floor(i*size(Z_5_3,2)/nb_diagramme_oeil)), 2*(Fe/Rb), length(Z_5_3(:,i*floor(size(Z_5_3,2)/nb_diagramme_oeil)))/(2*(Fe/Rb)));
+    %plot(oeil_bruit(:,1:10*(Fe/Rb))); 
+    %title(strcat("Diagramme de l'oeil pour E_b/N_0 ",num2str(E_bN0dB_3(floor(i*size(Z_5_3,2)/nb_diagramme_oeil)))," dB"));
+    %xlabel("Echantillons");
+    %ylabel("Amplitude");
+%end;
 
 figure('Name', "Taux Erreur Binaire",'Position', [100 100 1300 600]);
 s1 = semilogy(E_bN0dB_3, TEB_5_3);

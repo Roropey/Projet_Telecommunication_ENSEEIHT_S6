@@ -62,9 +62,13 @@ ylabel("Amplitude");
 
 figure('Name','Convolution','Position', [100 100 1300 600]);
 plot((0:(2*(Fe/Rb-1)/Fe)/(length(g)-1):2*((Fe/Rb)-1)/Fe),g);
+xlabel('Temps');
+ylabel('Amplitudes');
 
 figure('Name',"Diagramme de l'oeil",'Position', [100 100 1300 600]);
 plot(oeil(:,1:4*(Fe/Rb)));
+xlabel('Echantillons');
+ylabel('Amplitude');
 
 fprintf("Taux d'erreur pour n0 = %.1f : %.4f.\n", n0, taux_erreur_binaire);
 
