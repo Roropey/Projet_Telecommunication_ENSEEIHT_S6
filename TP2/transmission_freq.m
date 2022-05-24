@@ -26,11 +26,12 @@ if mod(nb_bits,log2(M))~=0
     error("Nombre de bits incompatible au mappage");
 end
 information_entree = randi([0,1], 1, nb_bits);
+%information_entree_ajout = [zeros(1,log2(M)) information_entree];
 %% Modulateur
 % Variables
 Ns = (Fe/Rb)*log2(M);
 
-info_binaire = reshape(information_entree, [log2(M) nb_bits/log2(M)]);
+info_binaire = reshape(information_entree, [log2(M) (nb_bits)/log2(M)]);
 
 switch type
     case 'ASK'
@@ -51,7 +52,7 @@ switch type
         
     case 'PSK'
         info_dec = bit2int(info_binaire,log2(M));
-        symboles_envoye = pskmod(info_dec,M,0);
+        symboles_envoye = pskmod(info_dec,M,0,'gray');
         
     otherwise
         error("Type non reconnu ou non supporté : doit être ASK ou QPSK ou QAM ou PSK");
@@ -59,7 +60,7 @@ end
 
 if affichage
     info_dec = bit2int(info_binaire,log2(M));
-    s=scatterplot(symboles_envoye);
+    s=scatterplot(symboles_envoye(1:end));
     for k = 1:length(info_dec)-1;
         switch type
             case {'QPSK','PSK'}
@@ -95,18 +96,18 @@ z = z_decale(floor(N/2)+1:end);
 
 z_echant = z(n0:Ns:end);
 if affichage
-    s=scatterplot(z_echant);
+    s=scatterplot(z_echant(2:end));
     s.Name=strcat('Constellation après échantillonnage : ',' ',int2str(M),'-',type);
 end
 switch type
     case 'ASK'
         symbole_recu = ((abs(z_echant)<(mapping(3)+mapping(4))/2)*mapping(3) + (abs(z_echant)>=(mapping(3)+mapping(4))/2)*mapping(4)).*sign(z_echant);
         information_sortie_reshape=[symbole_recu>(mapping(2)+mapping(3))/2 ; abs(symbole_recu)>(mapping(3)+mapping(4))/2];
-        information_sortie = reshape(information_sortie_reshape,1,nb_bits);
-    case {'QAM','QPSK'}
-        
-        information_sortie = reshape(qamdemod(z_echant,M,'OutputType','bit'), 1, nb_bits);
+    case {'QAM','QPSK'}        
+        information_sortie_reshape = qamdemod(z_echant,M,'OutputType','bit');
     case 'PSK'       
-       information_sortie = reshape(int2bit(pskdemod(z_echant,M),log2(M)), 1, nb_bits);
+       information_sortie_reshape =int2bit(pskdemod(z_echant,M,0,'gray'),log2(M));
 end
+information_sortie = reshape(information_sortie_reshape,1,nb_bits);
+%information_sortie = information_sortie(log2(M)+1:end);
 end

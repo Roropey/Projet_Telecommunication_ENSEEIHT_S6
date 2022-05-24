@@ -5,16 +5,13 @@ clear;
 %% Variables Initiales
 alpha  = 0.5;
 Fp = 2000;
-Fe = 96000;
+Fe = 480000;
 Rb = 48000;
 nb_bits = 120000;
 N = 201;
 seuil_erreur = 1000;
 n0 = 1;
-Ns = (Fe/Rb)*2;
 E_bN0Db = -1;
-h = rcosdesign(alpha, (N-1)/Ns,Ns);
-hr = h;
 
 E_bN0db = 0:0.1:6;
 
@@ -23,23 +20,31 @@ E_bN0db = 0:0.1:6;
 %% 4-ASK
 
 TEB_th_4ASK = (2/log2(4)) * (1-1/4) * qfunc(sqrt(((6*log2(4))/(4*4-1)).*10.^(E_bN0db/10)));
-[TEB_4ASK signal_emis_4ASK] = EtudeTransmission(Fe,Rb,N,'ASK',4,nb_bits,n0,h,hr,E_bN0db,seuil_erreur,TEB_th_4ASK);
+[TEB_4ASK signal_emis_4ASK] = EtudeTransmission(Fe,Rb,N,'ASK',4,nb_bits,n0,alpha,E_bN0db,seuil_erreur,TEB_th_4ASK);
 
+pause;
+close all;
 %% QPSK
 
 TEB_th_QPSK = (4/ log2(4)).*(1-(1/sqrt(4))).*qfunc(sqrt(((3*log2(4))/(4-1)).*10.^(E_bN0db/10)));
-[TEB_QPSK signal_emis_QPSK] = EtudeTransmission(Fe,Rb,N,'QPSK',4,nb_bits,n0,h,hr,E_bN0db,seuil_erreur,TEB_th_QPSK);
+[TEB_QPSK signal_emis_QPSK] = EtudeTransmission(Fe,Rb,N,'QPSK',4,nb_bits,n0,alpha,E_bN0db,seuil_erreur,TEB_th_QPSK);
 
+pause;
+close all;
 %% 8-PSK
 
 TEB_th_8PSK = (2/log2(8)) * qfunc(sqrt(2*(10.^(E_bN0db/10))*log2(8))*sin(pi/8));
-[TEB_8PSK signal_emis_8PSK] = EtudeTransmission(Fe,Rb,N,'PSK',8,nb_bits,n0,h,hr,E_bN0db,seuil_erreur,TEB_th_8PSK);
+[TEB_8PSK signal_emis_8PSK] = EtudeTransmission(Fe,Rb,N,'PSK',8,nb_bits,n0,alpha,E_bN0db,seuil_erreur,TEB_th_8PSK);
 
+pause;
+close all;
 %% 16-QAM
 
 TEB_th_16QAM = (4/ log2(16)).*(1-(1/sqrt(16))).*qfunc(sqrt(((3*log2(16))/(16-1)).*10.^(E_bN0db/10)));
-[TEB_16QAM signal_emis_16QAM] = EtudeTransmission(Fe,Rb,N,'QAM',16,nb_bits,n0,h,hr,E_bN0db,seuil_erreur,TEB_th_16QAM);
+[TEB_16QAM signal_emis_16QAM] = EtudeTransmission(Fe,Rb,N,'QAM',16,nb_bits,n0,alpha,E_bN0db,seuil_erreur,TEB_th_16QAM);
 
+pause;
+close all;
 %% Comparaison
 
 %TEB

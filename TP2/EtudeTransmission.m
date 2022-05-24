@@ -1,4 +1,4 @@
-function [TEB,signal_emis] = EtudeTransmission(Fe,Rb,N,type,M,nb_bits,n0,h,hr,E_bN0db,seuil_erreur,TEB_th)
+function [TEB,signal_emis] = EtudeTransmission(Fe,Rb,N,type,M,nb_bits,n0,alpha,E_bN0db,seuil_erreur,TEB_th)
 %EtudeTransmission Summary of this function goes here
 %   Fe : fréquence d'échantillonnage
 %   Rb : débit binaire
@@ -15,11 +15,22 @@ function [TEB,signal_emis] = EtudeTransmission(Fe,Rb,N,type,M,nb_bits,n0,h,hr,E_
 %   TEB : taux d'erreur binaire pour l E_b/N0 variant de 0 à 6 dB
 %   signal_emis : signal emis en sortie de modulation sans bruit
 
+%% Initialisation
+
+Ns = (Fe/Rb)*log2(M);
+h = rcosdesign(alpha, (N-1)/Ns,Ns);
+hr = h;
+
 %% Etude sans bruit
 
-[information_entree, information_sortie, signal_emis, ~] = transmission_freq(Fe,Rb,N,type,M,nb_bits,Inf,n0,h,hr,true);
+[information_entree, information_sortie, signal_emis, z] = transmission_freq(Fe,Rb,N,type,M,nb_bits,Inf,n0,h,hr,true);
 taux_erreur_binaire = sum(abs(information_entree-information_sortie))/length(information_entree);
 
+
+%oeil_angle = reshape(angle(z), 2*log2(M)*(Fe/Rb),[]);
+
+%figure('Name','Oeil angle');
+%plot(oeil_angle);
 
 fprintf("Taux d'erreur sans bruit pour n0 = %.1f avec modulation %d-%s : %.4f.\n", n0, M,type,taux_erreur_binaire);
 
