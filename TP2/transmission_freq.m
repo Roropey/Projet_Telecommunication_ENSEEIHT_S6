@@ -1,4 +1,4 @@
-function [information_entree information_sortie xe z symboles_envoye symbole_recu] = transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0Db,n0,h,hr,affichage)
+function [information_entree information_sortie xe z] = transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0Db,n0,h,hr,affichage)
 %transmision_freq : réalise la chaîne de transmission d'un message binaire aléatoire sur
 %fréquence porteuse
 %   Fe : fréquence d'échantillonnage
@@ -106,11 +106,8 @@ switch type
         information_sortie_reshape=[symbole_recu>(mapping(2)+mapping(3))/2 ; abs(symbole_recu)>(mapping(3)+mapping(4))/2];
     case {'QAM','QPSK'}        
         information_sortie_reshape = qamdemod(z_echant,M,'OutputType','bit');
-        symbole_recu =  qammod(information_sortie_reshape,M,'InputType','bit');
     case 'PSK'       
        information_sortie_reshape =int2bit(pskdemod(z_echant,M,0,'gray'),log2(M));
-        info_dec_recu = bit2int(information_sortie_reshape,log2(M));
-        symbole_recu = pskmod(info_dec_recu,M,0,'gray');
 end
 information_sortie = reshape(information_sortie_reshape,1,nb_bits);
 %information_sortie = information_sortie(log2(M)+1:end);
