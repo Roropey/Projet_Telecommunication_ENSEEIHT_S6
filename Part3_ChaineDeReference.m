@@ -17,7 +17,7 @@ n0 = Fe/Rb;
 
 %% Sans bruit
 fprintf("Sans bruit\n");
-[info_binaire_env_sans_bruit, info_binaire_recu_sans_bruit, ~, ~, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,-1,n0,h,0,hr);
+[info_binaire_env_sans_bruit, info_binaire_recu_sans_bruit, ~, ~, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,Inf,n0,h,0,hr);
 
 mod_DSP = fftshift(abs(fft(xcorr(x,'unbiased'))));
 plage_module=(-Fe/2:Fe/(length(mod_DSP)-1):Fe/2);

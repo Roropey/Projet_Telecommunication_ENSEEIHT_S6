@@ -15,7 +15,7 @@ Suite_diracs = kron(symboles_envoye, [1 zeros(1, Ns-1)]);
 x = filter(h, 1, Suite_diracs);
 
 %% Canal de Transmission
-if (E_bN0Db < 0)
+if (E_bN0Db == Inf)
     x_bruite = x;
 else
     P_x = mean(abs(x).^2);
