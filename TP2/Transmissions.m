@@ -11,38 +11,44 @@ nb_bits = 120000;
 N = 201;
 seuil_erreur = 1000;
 n0 = 1;
-E_bN0Db = -1;
 
-E_bN0db = 0:0.1:6;
+%Plage du bruit pour l'affichage des constellations
+E_bN0db_cons = 0:1:8;
+%Plage du bruit pour le calcul du taux d'erreur
+E_bN0db_TEB = 0:0.1:6;
 
-%(Fe,Rb,N,type,M,nb_bits,n0,h,hr,E_bN0db,seuil_erreur,TEB_th)
+%(Fe,Rb,N,type,M,nb_bits,n0,h,hr,E_bN0db_TEB,seuil_erreur,TEB_th)
 
 %% 4-ASK
+fprintf("4-ASK\n");
+TEB_th_4ASK = (2/log2(4)) * (1-1/4) * qfunc(sqrt(((6*log2(4))/(4*4-1)).*10.^(E_bN0db_TEB/10)));
+[TEB_4ASK signal_emis_4ASK] = EtudeTransmission(Fe,Rb,N,'ASK',4,nb_bits,n0,alpha,E_bN0db_TEB,E_bN0db_cons,seuil_erreur,TEB_th_4ASK);
 
-TEB_th_4ASK = (2/log2(4)) * (1-1/4) * qfunc(sqrt(((6*log2(4))/(4*4-1)).*10.^(E_bN0db/10)));
-[TEB_4ASK signal_emis_4ASK] = EtudeTransmission(Fe,Rb,N,'ASK',4,nb_bits,n0,alpha,E_bN0db,seuil_erreur,TEB_th_4ASK);
-
+fprintf("Taper sur ENTREE pour continuer (/!\\ cela supprimera les courbes affichées)\n");
 pause;
 close all;
 %% QPSK
+fprintf("QPSK\n");
+TEB_th_QPSK = (4/ log2(4)).*(1-(1/sqrt(4))).*qfunc(sqrt(((3*log2(4))/(4-1)).*10.^(E_bN0db_TEB/10)));
+[TEB_QPSK signal_emis_QPSK] = EtudeTransmission(Fe,Rb,N,'QPSK',4,nb_bits,n0,alpha,E_bN0db_TEB,E_bN0db_cons,seuil_erreur,TEB_th_QPSK);
 
-TEB_th_QPSK = (4/ log2(4)).*(1-(1/sqrt(4))).*qfunc(sqrt(((3*log2(4))/(4-1)).*10.^(E_bN0db/10)));
-[TEB_QPSK signal_emis_QPSK] = EtudeTransmission(Fe,Rb,N,'QPSK',4,nb_bits,n0,alpha,E_bN0db,seuil_erreur,TEB_th_QPSK);
-
+fprintf("Taper sur ENTREE pour continuer (/!\\ cela supprimera les courbes affichées)\n");
 pause;
 close all;
 %% 8-PSK
+fprintf("8-PSK\n");
+TEB_th_8PSK = (2/log2(8)) * qfunc(sqrt(2*(10.^(E_bN0db_TEB/10))*log2(8))*sin(pi/8));
+[TEB_8PSK signal_emis_8PSK] = EtudeTransmission(Fe,Rb,N,'PSK',8,nb_bits,n0,alpha,E_bN0db_TEB,E_bN0db_cons,seuil_erreur,TEB_th_8PSK);
 
-TEB_th_8PSK = (2/log2(8)) * qfunc(sqrt(2*(10.^(E_bN0db/10))*log2(8))*sin(pi/8));
-[TEB_8PSK signal_emis_8PSK] = EtudeTransmission(Fe,Rb,N,'PSK',8,nb_bits,n0,alpha,E_bN0db,seuil_erreur,TEB_th_8PSK);
-
+fprintf("Taper sur ENTREE pour continuer (/!\\ cela supprimera les courbes affichées)\n");
 pause;
 close all;
 %% 16-QAM
+fprintf("16-QAM\n");
+TEB_th_16QAM = (4/ log2(16)).*(1-(1/sqrt(16))).*qfunc(sqrt(((3*log2(16))/(16-1)).*10.^(E_bN0db_TEB/10)));
+[TEB_16QAM signal_emis_16QAM] = EtudeTransmission(Fe,Rb,N,'QAM',16,nb_bits,n0,alpha,E_bN0db_TEB,E_bN0db_cons,seuil_erreur,TEB_th_16QAM);
 
-TEB_th_16QAM = (4/ log2(16)).*(1-(1/sqrt(16))).*qfunc(sqrt(((3*log2(16))/(16-1)).*10.^(E_bN0db/10)));
-[TEB_16QAM signal_emis_16QAM] = EtudeTransmission(Fe,Rb,N,'QAM',16,nb_bits,n0,alpha,E_bN0db,seuil_erreur,TEB_th_16QAM);
-
+fprintf("Taper sur ENTREE pour continuer (/!\\ cela supprimera les courbes affichées)\n");
 pause;
 close all;
 %% Comparaison
@@ -50,11 +56,11 @@ close all;
 %TEB
 
 figure('Name','Comparaison TEB');
-s1_TEB = semilogy(E_bN0db,TEB_4ASK);
+s1_TEB = semilogy(E_bN0db_TEB,TEB_4ASK);
 hold on;
-s2_TEB = semilogy(E_bN0db,TEB_QPSK);
-s3_TEB = semilogy(E_bN0db,TEB_8PSK);
-s4_TEB = semilogy(E_bN0db,TEB_16QAM);
+s2_TEB = semilogy(E_bN0db_TEB,TEB_QPSK);
+s3_TEB = semilogy(E_bN0db_TEB,TEB_8PSK);
+s4_TEB = semilogy(E_bN0db_TEB,TEB_16QAM);
 hold off;
 
 xlabel('Eb/N0 (dB)');
@@ -63,11 +69,11 @@ title('TEBs pour différentes modulations');
 legend([s1_TEB s2_TEB s3_TEB s4_TEB],"4-ASK","QPSK","8-PSK","16-QAM");
 
 figure('Name','Comparaison TEB théorique');
-s1 = semilogy(E_bN0db,TEB_th_4ASK);
+s1 = semilogy(E_bN0db_TEB,TEB_th_4ASK);
 hold on;
-s2 = semilogy(E_bN0db,TEB_th_QPSK);
-s3 = semilogy(E_bN0db,TEB_th_8PSK);
-s4 = semilogy(E_bN0db,TEB_th_16QAM);
+s2 = semilogy(E_bN0db_TEB,TEB_th_QPSK);
+s3 = semilogy(E_bN0db_TEB,TEB_th_8PSK);
+s4 = semilogy(E_bN0db_TEB,TEB_th_16QAM);
 hold off;
 
 xlabel('Eb/N0 (dB)');

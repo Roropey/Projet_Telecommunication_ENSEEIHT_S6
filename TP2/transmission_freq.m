@@ -1,4 +1,4 @@
-function [information_entree information_sortie xe z] = transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0Db,n0,h,hr,affichage)
+function [information_entree information_sortie xe z symboles_envoye symbole_recu] = transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0Db,n0,h,hr,affichage)
 %transmision_freq : réalise la chaîne de transmission d'un message binaire aléatoire sur
 %fréquence porteuse
 %   Fe : fréquence d'échantillonnage
@@ -19,6 +19,7 @@ function [information_entree information_sortie xe z] = transmission_freq(Fe,Rb,
 %   transmission
 %   we : signal en sortie de modulation
 %   z : signal en sortie de filtre de réception
+%   symbole_emis
 
 %% Initialisation
 
@@ -64,9 +65,9 @@ if affichage
     for k = 1:length(info_dec)-1;
         switch type
             case {'QPSK','PSK'}
-                text(real(symboles_envoye(k))-0.08,imag(symboles_envoye(k))-.08,dec2base(info_dec(k),2,4),'Color',[1 1 1]);
+                text(real(symboles_envoye(k))-0.08,imag(symboles_envoye(k))-.08,dec2base(info_dec(k),2,log2(M)),'Color',[1 1 1]);
             otherwise
-                text(real(symboles_envoye(k))-0.2,imag(symboles_envoye(k))-.15,dec2base(info_dec(k),2,4),'Color',[1 1 1]);
+                text(real(symboles_envoye(k))-0.2,imag(symboles_envoye(k))-.15,dec2base(info_dec(k),2,log2(M)),'Color',[1 1 1]);
         end
     end
     s.Name = strcat("Constellation en sortie de mapping : ",int2str(M),'-',type);
@@ -84,7 +85,7 @@ if E_bN0Db==Inf
     x_bruite = xe;
 else
     P_re =  mean(abs(xe).^2);
-    Sigma_n = sqrt((P_re*2*Fe/Rb)/(2*log2(M)*10.^(E_bN0Db/10)));
+    Sigma_n = sqrt((P_re*Ns)/(2*log2(M)*10.^(E_bN0Db/10)));
     bruit = Sigma_n*randn(1, length(xe))+1i*Sigma_n*randn(1, length(xe));
     x_bruite = xe + bruit;
 end
@@ -97,16 +98,19 @@ z = z_decale(floor(N/2)+1:end);
 z_echant = z(n0:Ns:end);
 if affichage
     s=scatterplot(z_echant(2:end));
-    s.Name=strcat('Constellation après échantillonnage : ',' ',int2str(M),'-',type);
+    s.Name=strcat('Constellation après échantillonnage : ',' ',int2str(M),'-',type,' puissance bruit ',int2str(E_bN0Db));
 end
 switch type
     case 'ASK'
-        symbole_recu = ((abs(z_echant)<(mapping(3)+mapping(4))/2)*mapping(3) + (abs(z_echant)>=(mapping(3)+mapping(4))/2)*mapping(4)).*sign(z_echant);
+        symbole_recu = ((abs(real(z_echant))<(mapping(3)+mapping(4))/2)*mapping(3) + (abs(real(z_echant))>=(mapping(3)+mapping(4))/2)*mapping(4)).*sign(real(z_echant));
         information_sortie_reshape=[symbole_recu>(mapping(2)+mapping(3))/2 ; abs(symbole_recu)>(mapping(3)+mapping(4))/2];
     case {'QAM','QPSK'}        
         information_sortie_reshape = qamdemod(z_echant,M,'OutputType','bit');
+        symbole_recu =  qammod(information_sortie_reshape,M,'InputType','bit');
     case 'PSK'       
        information_sortie_reshape =int2bit(pskdemod(z_echant,M,0,'gray'),log2(M));
+        info_dec_recu = bit2int(information_sortie_reshape,log2(M));
+        symbole_recu = pskmod(info_dec_recu,M,0,'gray');
 end
 information_sortie = reshape(information_sortie_reshape,1,nb_bits);
 %information_sortie = information_sortie(log2(M)+1:end);
