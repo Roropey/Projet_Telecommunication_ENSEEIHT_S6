@@ -1,6 +1,6 @@
 %% Nettoyage
-%close all;
-%clear;
+close all;
+clear;
 
 %% Variables initiales
 nb_bits = 100000;
@@ -27,7 +27,7 @@ x = filter(h, 1, Suite_diracs);
 mod_DSP = fftshift(abs(fft(xcorr(x,'unbiased'))));
 plage_module=(-Fe/2:Fe/(length(mod_DSP)-1):Fe/2);
 
-% Affichage
+ %Affichage
 %figure('Name',"Modulateur");
 
 %Bit = [0;1];

@@ -31,7 +31,7 @@ syms expr_th_1(f);
 expr_th_1(f) = var(mapping_1)*(Ns_1/Fe).*(sinc(f *(Ns_1/Fe))).^2; 
 
 % Affichage
-figure('Name',"Modulateur 1",'Position', [100 100 1300 600]);
+figure('Name',"Modulateur 1",'Position', [100 100 1000 600]);
 
 %Bit = [0;1];
 %Mapping = [a_1_0;a_1_1];
@@ -39,26 +39,29 @@ figure('Name',"Modulateur 1",'Position', [100 100 1300 600]);
 %uitable('Data',T{:,:},'ColumnName',T.Properties.VariableNames,'FontUnits','normalized','FontSize',0.2,'Units','normalized','Position',[0 0.5 0.5 0.5]);
 
 %subplot(2,2,2);
-subplot(2,2,1);
+%subplot(2,2,1);
 plot((0:1/Fe:(Ns_1-1)/Fe),h_1);
 title('Filtre de mise en forme rectangulaire');
 xlabel('Temps (s)');
 ylabel('Hauteur');
 
 %subplot(2,2,3);
-subplot(2,2,2);
+%subplot(2,2,2);
+figure('Name',"Modulateur 1",'Position', [100 100 1000 600]);
 plot((0:1/Fe:(Ns_1*nb_bits-1)/Fe),x_1);
 title('Signal transmis');
 xlabel('Temps (s)');
 ylabel('Amplitude');
 
-subplot(2,2,3);
+%subplot(2,2,3);
+figure('Name',"Modulateur 1",'Position', [100 100 1000 600]);
 semilogy(plage_module_1,mod_1_DSP);
 title("DSP du modulateur 1");
 xlabel('Hz');
 ylabel('Module TFD');
 
-subplot(2,2,4);
+%subplot(2,2,4);
+figure('Name',"Modulateur 1",'Position', [100 100 1000 600]);
 s1_1 = semilogy(plage_module_1,mod_1_DSP);
 hold on
 s2_1 = fplot(expr_th_1, [plage_module_1(1) plage_module_1(length(plage_module_1))]);
@@ -95,7 +98,7 @@ expr_th_2(f) = var(mapping_2)*(Ns_2/Fe).*(sinc(f *(Ns_2/Fe))).^2;
 
 
 % Affichage
-figure('Name',"Modulateur 2",'Position', [100 100 1300 600]);
+figure('Name',"Modulateur 2",'Position', [100 100 1000 600]);
 
 %Bit = {'00', '01', '10', '11'}';
 %Mapping = {int2str(a_2_00),int2str(a_2_01),int2str(a_2_10),int2str(a_2_11)}';
@@ -103,26 +106,29 @@ figure('Name',"Modulateur 2",'Position', [100 100 1300 600]);
 %uitable('Data',T{:,:},'ColumnName',T.Properties.VariableNames,'FontUnits','normalized','FontSize',0.15,'Units','normalized','Position',[0 0.5 0.5 0.5]);
 
 %subplot(2,2,2);
-subplot(2,2,1);
+%subplot(2,2,1);
 plot((0:1/Fe:(Ns_2-1)/Fe),h_2);
 title('Filtre de mise en forme rectangulaire');
 xlabel('Temps (s)');
 ylabel('Hauteur');
 
 %subplot(2,2,3);
-subplot(2,2,2);
+%subplot(2,2,2);
+figure('Name',"Modulateur 2",'Position', [100 100 1000 600]);
 plot((0:1/Fe:(Ns_2*nb_bits-1)/(2*Fe)),x_2);
 title('Signal transmis');
 xlabel('Temps (s)');
 ylabel('Amplitude');
 
-subplot(2,2,3);
+%subplot(2,2,3);
+figure('Name',"Modulateur 2",'Position', [100 100 1000 600]);
 semilogy(plage_module_2,mod_2_DSP);
 title("DSP du modulateur 2");
 xlabel('Hz');
 ylabel('Module TFD');
 
-subplot(2,2,4);
+%subplot(2,2,4);
+figure('Name',"Modulateur 2",'Position', [100 100 1000 600]);
 s1_2 = semilogy(plage_module_2,mod_2_DSP);
 hold on
 s2_2 = fplot(expr_th_2, [plage_module_2(1) plage_module_2(length(plage_module_2))]);
@@ -159,34 +165,37 @@ expr_th_3(f) = piecewise( abs(f)<=(1-alpha)*Fe/(2*Ns_3), (var(mapping_3)*Fe/Ns_3
 (abs(f)<(1-alpha)*Fe/(2*Ns_3)) | (abs(f)>(1+alpha)*Fe/(2*Ns_3)),0);
 
 % Affichage
-figure('Name',"Modulateur 3",'Position', [100 100 1300 600]);
+figure('Name',"Modulateur 3",'Position', [100 100 1000 600]);
 
 %Bit = [0;1];
 %Mapping = [a_3_0;a_3_1];
 %T = table(Bit,Mapping);
 %uitable('Data',T{:,:},'ColumnName',T.Properties.VariableNames,'FontUnits','normalized','FontSize',0.2,'ColumnWidth','auto','Units','normalized','Position',[0 0.5 0.5 0.5]);
 
-subplot(2,2,1);
+%subplot(2,2,1);
 %subplot(2,2,2);
 plot((-Ns_3/Fe:2*(Ns_3)/((N-1)*Fe):Ns_3/Fe),h_3);
 title('Filtre de mise en forme racine de cosinus surélevé');
 xlabel('Temps (s)');
 ylabel('Hauteur');
 
-subplot(2,2,2);
+%subplot(2,2,2);
 %subplot(2,2,3);
+figure('Name',"Modulateur 3",'Position', [100 100 1000 600]);
 plot((0:1/Fe:(Ns_3*nb_bits-1)/Fe),x_3);
 title('Signal transmis');
 xlabel('Temps (s)');
 ylabel('Amplitude');
 
-subplot(2,2,3);
+%subplot(2,2,3);
+figure('Name',"Modulateur 3",'Position', [100 100 1000 600]);
 semilogy(plage_module_3,mod_3_DSP);
 title("DSP du modulateur 3");
 xlabel('Hz');
 ylabel('Module TFD');
 
-subplot(2,2,4);
+%subplot(2,2,4);
+figure('Name',"Modulateur 3",'Position', [100 100 1000 600]);
 s1_3 = semilogy(plage_module_3,mod_3_DSP);
 hold on
 s2_3 = fplot(expr_th_3, [plage_module_3(1) plage_module_3(length(plage_module_3))]);
@@ -200,25 +209,26 @@ ylabel('Module TFD');
 
 % Affichage
 
-figure('Name','Comparaison des modulateurs','Position', [100 100 1300 600]);
-subplot(1,2,1);
+figure('Name','Comparaison des modulateurs','Position', [100 100 1000 600]);
+%subplot(1,2,1);
 mod1 = plot(x_1);
 hold on;
 mod2 = plot(x_2,'r','Linewidth',1);
 mod3 = plot(x_3,'Color',[0.4660 0.6740 0.1880],'Linewidth',1);
 hold off;
 title("Signaux en sortie des modulateurs")
-legend([mod1, mod2, mod3],"Module du modulateur 1","Module du modulateur 2","Module du modulateur 3");
+legend([mod1, mod2, mod3],"Signal Modulateur 1","Signal Modulateur 2","Signal Modulateur 3");
 xlabel('Temps (s)');
 ylabel('Amplitude');
 
-subplot(1,2,2);
+%subplot(1,2,2);
+figure('Name','Comparaison des modulateurs','Position', [100 100 1000 600]);
 s1 = semilogy(plage_module_1,mod_1_DSP);
 hold on;   
 s2 = semilogy(plage_module_2,mod_2_DSP,'r','Linewidth',1);
 s3 = semilogy(plage_module_3,mod_3_DSP,'Color',[0.4660 0.6740 0.1880],'Linewidth',1);
 hold off;
 title("DSP des modulateurs");
-legend([s1, s2, s3],"Module du modulateur 1","Module du modulateur 2","Module du modulateur 3");
+legend([s1, s2, s3],"DSP Modulateur 1","DSP Modulateur 2","DSP Modulateur 3");
 xlabel('Hz');
 ylabel('Module TFD');
