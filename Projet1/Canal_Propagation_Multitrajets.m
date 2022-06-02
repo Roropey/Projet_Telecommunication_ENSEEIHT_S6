@@ -4,72 +4,59 @@ clear;
 
 %% Variables initiales
 nb_bits = 100;
-info_binaire = randi([0,1], 1,nb_bits);
-info_binaire = [0 1 1 0 0 1];
 Fe = 24000;
 Rb = 3000;
-N = 101;
-
-%% Modulateur
-
-% Variables
-Ns = Fe/Rb;
-Ts = Ns/Fe;
-a_1 = 1;
-a_0 = -1;
+seuil_derreur = 1000;
+a=[-1 1];
+Ns = log2(length(a))*Fe/Rb;
 h = ones(1,Ns);
+hr = h;
+n0 = Ns;
 
-% Calculs
-mapping = info_binaire.*(a_1 - a_0) + a_0;
-Suite_diracs = kron(mapping, [1 zeros(1, Ns-1)]);
-x = filter(h, 1, Suite_diracs);
+%% Calculs
+info_binaire = [0 1 1 0 0 1];
+[~,info_recu,x,y,z,z_echant] = Propagation_Multi_Canal(info_binaire,nb_bits,Fe,Rb,n0,a,h,hr,1,0,0.5,1/Rb,Inf);
+
+%% Modulation
 figure("Name","Sortie modulation");
-subplot(1,2,1);
-plot(x)
-subplot(1,2,2);
-plot(h);
+plot(0:1/Fe:length(info_binaire)/Rb-1/Fe,x);
+xlabel("Temps");
+ylabel("Amplitude");
+title("Signal en sortie de modulation");
 
 %% Canal
-alpha_0 = 1
-tau_0 = 0;
-alpha_1 = 0.5;
-tau_1 = tau_0 + Ts;
-
-hc = zeros(1,(max(tau_0,tau_1)+Ts)*Fe);
-hc(tau_0*Fe+1:(tau_0+Ts)*Fe+1) = alpha_0;
-hc(tau_1*Fe+1:(tau_1+Ts)*Fe+1) = alpha_1;
-
-y=filter(hc,1,x);
-
 figure("Name","Sortie de canal");
-g_canal=conv(h,hc);
-subplot(2,2,1)
-plot(hc);
-subplot(2,2,2);
-plot(g_canal);
-subplot(2,2,[3 4]);
-plot(y);
+plot(0:1/Fe:length(info_binaire)/Rb-1/Fe,y);
+xlabel("Temps");
+ylabel("Amplitude");
+title("Signal en sortie de canal de progation");
 
 %% Demodulateur
-
-%Filtrage de réception
-hr = ones(1,Ns);
-z = filter(hr, 1, y);
-g = conv(g_canal,hr);
 figure("Name","Sortie de filtre de récéption");
-subplot(2,2,1)
-plot(hr);
-subplot(2,2,2);
-plot(g);
-subplot(2,2,3);
-oeil = reshape(z, 4*Ns, []);
-plot(oeil);
-subplot()
-subplot(2,2,4);
-plot(z);
+plot(0:1/Fe:length(info_binaire)/Rb-1/Fe,z);
 
-n0 = Ns;
-z_echant = z(n0:Ns:end);
-info_bin_rec = z_echant > 0;
-taux_erreur_binaire = sum(abs(info_bin_rec-info_binaire))/length(info_binaire);
+s=scatterplot(z_echant);
+s.Name = "Constellation obtenue en réception";
+
+taux_erreur_binaire = sum(info_recu~=info_binaire)/length(info_binaire);
 fprintf("Taux d'erreur pour n0 = %.1f $%f.\n", n0, taux_erreur_binaire);
+
+%% Bruit
+TEB = [];
+E_bN0_plage = 0:0.1:10;
+for E_bN0dB = E_bN0_plage
+    nb_bits_faux = 0;
+    nb_bits_tot = 0;
+    while nb_bits_faux < seuil_derreur
+        [info_entree,info_recu,~,~,~,~] = Propagation_Multi_Canal(Inf,nb_bits,Fe,Rb,n0,a,h,hr,1,0,0.5,1/Rb,E_bN0dB);
+        nb_bits_faux = nb_bits_faux + sum(info_entree~=info_recu);
+        nb_bits_tot = nb_bits_tot + nb_bits;
+    end;
+    TEB = [TEB nb_bits_faux/nb_bits_tot];
+end;
+
+figure;
+plot(E_bN0_plage,TEB);
+
+
+
