@@ -67,25 +67,26 @@ expr_th_xe(f) = piecewise( abs(f)<=(1-alpha)*Fe/(2*Ns), (var(mapping)*Fe/Ns).*(N
 
 
 % Affichage
-figure('Name', 'Signal modulé')
+figure('Name', 'Signal modulé', 'Position', [100 100 1300 600])
 
-subplot(2,2,1);
+subplot(2,1,1);
 plot(t,I);
 title('I(t)');
 xlabel('Temps (s)');
 ylabel('Amplitude');
 
-subplot(2,2,2);
+subplot(2,1,2);
 plot(t, Q)
 title('Q(t)');
 xlabel('Temps (s)');
 ylabel('Amplitude');
 
-
-subplot(2,2,[3 4]);
+figure('Name', 'DSP signal modulé', 'Position', [100 100 1300 600])
 semilogy(plage, DSP);
+xlabel('fréquence(Hz)');
+ylabel('Amplitude');
 
-figure('Name',"comparaison DSP");
+figure('Name',"comparaison DSP", 'Position', [100 100 1300 600]);
 s1_3 = semilogy(plage,DSP);
 hold on
 s2_3 = fplot(expr_th_xe, [plage(1) plage(length(plage))]);
@@ -110,12 +111,16 @@ z_decale = filter(hr, 1, x_demod_decale);
 z = z_decale(floor(N/2)+1:end);%
 
 oeil_reel = reshape(real(z), 4*(Fe/Rb), length(z)/(4*(Fe/Rb)));
-figure();
+figure('Name',"Diagramme de l'oeil de la partie réelle du signal en sortie du filtre de réception", 'Position',[100 100 1300 600]);
 plot(oeil_reel(:,1:4*(Fe/Rb)));
+xlabel('Echantillons');
+ylabel('Amplitude');
 
 oeil_imag = reshape(imag(z), 4*(Fe/Rb), length(z)/(4*(Fe/Rb)));
-figure();
+figure('Name',"Diagramme de l'oeil de la partie imaginaire du signal en sortie du filtre de réception", 'Position',[100 100 1300 600]);
 plot(oeil_imag(:,1:4*(Fe/Rb)));
+xlabel('Echantillons');
+ylabel('Amplitude');
 
 n0 = 1;
 z_echant = z(n0:Ns:end);

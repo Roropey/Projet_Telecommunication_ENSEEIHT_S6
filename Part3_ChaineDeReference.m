@@ -19,8 +19,8 @@ n0 = Fe/Rb;
 fprintf("Sans bruit\n");
 [info_binaire_env_sans_bruit, info_binaire_recu_sans_bruit, ~, ~, x, ~, z] = transmission(Fe,Rb,N,a,nb_bits,Inf,n0,h,0,hr);
 
-mod_DSP = fftshift(abs(fft(xcorr(x,'unbiased'))));
-plage_module=(-Fe/2:Fe/(length(mod_DSP)-1):Fe/2);
+mod_DSP_2 = fftshift(abs(fft(xcorr(x,'unbiased'))));
+plage_module_2=(-Fe/2:Fe/(length(mod_DSP_2)-1):Fe/2);
 
 g = conv(h,hr);
 
@@ -50,8 +50,8 @@ xlabel('Temps (s)');
 ylabel('Amplitude');
 
 subplot(2,2,4);
-plage_module=(-Fe/2:Fe/(length(mod_DSP)-1):Fe/2);
-semilogy(plage_module,mod_DSP);
+plage_module=(-Fe/2:Fe/(length(mod_DSP_2)-1):Fe/2);
+semilogy(plage_module,mod_DSP_2);
 title("DSP du modulateur");
 xlabel('Hz');
 ylabel('Module TFD');
@@ -134,5 +134,5 @@ xlabel('Eb/N0 (dB)');
 ylabel('TEB');
 title('TEB simulé et théorique');
 
-clearvars -except TEB_5_2 E_bN0dB_2_TEB;
+clearvars -except mod_DSP_2 plage_module_2 TEB_5_2 E_bN0dB_2_TEB;
 save Chaine_5_2;
