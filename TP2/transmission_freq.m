@@ -62,15 +62,17 @@ end
 if affichage
     info_dec = bit2int(info_binaire,log2(M));
     s=scatterplot(symboles_envoye(1:end));
-    for k = 1:length(info_dec)-1;
-        switch type
-            case {'QPSK','PSK'}
-                text(real(symboles_envoye(k))-0.08,imag(symboles_envoye(k))-.08,dec2base(info_dec(k),2,log2(M)),'Color',[1 1 1]);
-            otherwise
-                text(real(symboles_envoye(k))-0.2,imag(symboles_envoye(k))-.15,dec2base(info_dec(k),2,log2(M)),'Color',[1 1 1]);
-        end
-    end
-    s.Name = strcat("Constellation en sortie de mapping : ",int2str(M),'-',type);
+    % Affichage bit correspondant au mapping /!\ temps de calcul et
+    % d'affichage xInf ainsi que forte utilisation de la RAM
+%     for k = 1:length(info_dec)-1;
+%         switch type
+%             case {'QPSK','PSK'}
+%                 text(real(symboles_envoye(k))-0.08,imag(symboles_envoye(k))-.08,dec2base(info_dec(k),2,log2(M)),'Color',[1 1 1]);
+%             otherwise
+%                 text(real(symboles_envoye(k))-0.2,imag(symboles_envoye(k))-.15,dec2base(info_dec(k),2,log2(M)),'Color',[1 1 1]);
+%         end
+%     end
+      s.Name = strcat("Constellation en sortie de mapping : ",int2str(M),'-',type);
 end
 
 
