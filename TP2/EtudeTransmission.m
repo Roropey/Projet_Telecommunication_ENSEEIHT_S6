@@ -56,14 +56,13 @@ f2=figure('Name','Constellations après échantillonnage pour différent bruit')
 for k=1:length(E_bN0db_cons)
     [~, ~, ~, ~, cons_envoye, cons_recu]=transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0db_cons(k),n0,h,hr);
     figure(f1);
-    subplot(floor(sqrt(length(E_bN0db_cons))),ceil(sqrt(length(E_bN0db_cons))),k);
+    subplot(ceil(sqrt(length(E_bN0db_cons))),ceil(sqrt(length(E_bN0db_cons))),k);
     scatter(real(cons_envoye),imag(cons_envoye));
     xlabel("Partie réel");
     ylabel("Partie imaginnaire");
     title(strcat("Constellation en sortie de mapping pour un bruit de ",int2str(E_bN0db_cons(k)),'dB'));
-    sum(cons_envoye==cons_recu)
     figure(f2);
-    subplot(floor(sqrt(length(E_bN0db_cons))),ceil(sqrt(length(E_bN0db_cons))),k);
+    subplot(ceil(sqrt(length(E_bN0db_cons))),ceil(sqrt(length(E_bN0db_cons))),k);
     scatter(real(cons_recu),imag(cons_recu));
     xlabel("Partie réel");
     ylabel("Partie imaginnaire");
