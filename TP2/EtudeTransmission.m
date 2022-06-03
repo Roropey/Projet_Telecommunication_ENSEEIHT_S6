@@ -23,30 +23,55 @@ hr = h;
 
 %% Etude sans bruit
 fprintf("Etude sans bruit\n");
-[information_entree, information_sortie, signal_emis, z] = transmission_freq(Fe,Rb,N,type,M,nb_bits,Inf,n0,h,hr,true);
+[information_entree, information_sortie, signal_emis, z, cons_envoye, cons_recu] = transmission_freq(Fe,Rb,N,type,M,nb_bits,Inf,n0,h,hr);
 taux_erreur_binaire = sum(abs(information_entree-information_sortie))/length(information_entree);
 
 
-%oeil_angle = reshape(angle(z), 2*log2(M)*(Fe/Rb),[]);
+figure('Name',strcat("Constellation en sortie de mapping : ",int2str(M),'-',type))
+scatter(real(cons_envoye),imag(cons_envoye));
+xlabel("Partie réel");
+ylabel("Partie imaginnaire");
+title(strcat("Constellation en sortie de mapping : ",int2str(M),'-',type));
 
-%figure('Name','Oeil angle');
-%plot(oeil_angle);
+%  s.Name = strcat("Constellation en sortie de mapping : ",int2str(M),'-',type);
+
+figure('Name',strcat('Constellation après échantillonnage : ',' ',int2str(M),'-',type))
+scatter(real(cons_recu),imag(cons_recu));
+xlabel("Partie réel");
+ylabel("Partie imaginnaire");
+title(strcat("Constellation après échantillonnage : ",int2str(M),'-',type));
+
+% s=scatterplot(z_echant(2:end));
+% s.Name=strcat('Constellation après échantillonnage : ',' ',int2str(M),'-',type,' puissance bruit ',int2str(E_bN0Db));
+
 
 fprintf("Taux d'erreur sans bruit pour n0 = %.1f avec modulation %d-%s : %.4f.\n", n0, M,type,taux_erreur_binaire);
-fprintf("Taper sur ENTREE pour continuer (/!\\ cela supprimera les courbes affichées)\n");
-pause;
-close all;
+
 %% Etude avec bruit
 
 % Affichage constellation
 fprintf("Affichage de différentes constallations pour différents bruits\n");
-for E_bN0 = E_bN0db_cons
-    transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0,n0,h,hr,true);
+f1=figure('Name','Constellations en sortie de mapping pour différent bruit');
+f2=figure('Name','Constellations après échantillonnage pour différent bruit');
+for k=1:length(E_bN0db_cons)
+    [~, ~, ~, ~, cons_envoye, cons_recu]=transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0db_cons(k),n0,h,hr);
+    figure(f1);
+    subplot(floor(sqrt(length(E_bN0db_cons))),ceil(sqrt(length(E_bN0db_cons))),k);
+    scatter(real(cons_envoye),imag(cons_envoye));
+    xlabel("Partie réel");
+    ylabel("Partie imaginnaire");
+    title(strcat("Constellation en sortie de mapping pour un bruit de ",int2str(E_bN0db_cons(k)),'dB'));
+    sum(cons_envoye==cons_recu)
+    figure(f2);
+    subplot(floor(sqrt(length(E_bN0db_cons))),ceil(sqrt(length(E_bN0db_cons))),k);
+    scatter(real(cons_recu),imag(cons_recu));
+    xlabel("Partie réel");
+    ylabel("Partie imaginnaire");
+    title(strcat("Constellation après échantillonnage pour un bruit de ",int2str(E_bN0db_cons(k)),'dB'));
+
+
 end;
 
-fprintf("Taper sur ENTREE pour continuer (/!\\ cela supprimera les courbes affichées)\n");
-pause;
-close all;
 % Calcul TEB
 fprintf("Calculs et affichage du taux d'erreur binaires et symboles\n");
 TEB = [];
@@ -55,7 +80,7 @@ for E_bN0 = E_bN0db_TEB
     nb_bits_faux = 0;
     nb_bits_tot = 0;
     while nb_bits_faux < seuil_erreur
-        [information_entree, information_sortie, ~, ~] = transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0,n0,h,hr,false);
+        [information_entree, information_sortie, ~, ~] = transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0,n0,h,hr);
         
         nb_bits_faux = sum(abs(information_entree-information_sortie)) + nb_bits_faux;
         nb_bits_tot = nb_bits_tot + nb_bits;

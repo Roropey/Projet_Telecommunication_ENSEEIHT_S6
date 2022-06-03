@@ -1,4 +1,4 @@
-function [information_entree information_sortie xe z] = transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0Db,n0,h,hr,affichage)
+function [information_entree information_sortie xe z symboles_envoye z_echant] = transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0Db,n0,h,hr)
 %transmision_freq : réalise la chaîne de transmission d'un message binaire aléatoire sur
 %fréquence porteuse
 %   Fe : fréquence d'échantillonnage
@@ -59,21 +59,7 @@ switch type
         error("Type non reconnu ou non supporté : doit être ASK ou QPSK ou QAM ou PSK");
 end
 
-if affichage
-    info_dec = bit2int(info_binaire,log2(M));
-    s=scatterplot(symboles_envoye(1:end));
-    % Affichage bit correspondant au mapping /!\ temps de calcul et
-    % d'affichage xInf ainsi que forte utilisation de la RAM
-%     for k = 1:length(info_dec)-1;
-%         switch type
-%             case {'QPSK','PSK'}
-%                 text(real(symboles_envoye(k))-0.08,imag(symboles_envoye(k))-.08,dec2base(info_dec(k),2,log2(M)),'Color',[1 1 1]);
-%             otherwise
-%                 text(real(symboles_envoye(k))-0.2,imag(symboles_envoye(k))-.15,dec2base(info_dec(k),2,log2(M)),'Color',[1 1 1]);
-%         end
-%     end
-      s.Name = strcat("Constellation en sortie de mapping : ",int2str(M),'-',type);
-end
+
 
 
 %% Modulation
@@ -98,10 +84,6 @@ z_decale = filter(hr, 1, x_bruite_decale);
 z = z_decale(floor(N/2)+1:end);
 
 z_echant = z(n0:Ns:end);
-if affichage
-    s=scatterplot(z_echant(2:end));
-    s.Name=strcat('Constellation après échantillonnage : ',' ',int2str(M),'-',type,' puissance bruit ',int2str(E_bN0Db));
-end
 switch type
     case 'ASK'
         symbole_recu = ((abs(real(z_echant))<(mapping(3)+mapping(4))/2)*mapping(3) + (abs(real(z_echant))>=(mapping(3)+mapping(4))/2)*mapping(4)).*sign(real(z_echant));
@@ -112,5 +94,5 @@ switch type
        information_sortie_reshape =int2bit(pskdemod(z_echant,M,0,'gray'),log2(M));
 end
 information_sortie = reshape(information_sortie_reshape,1,nb_bits);
-%information_sortie = information_sortie(log2(M)+1:end);
+
 end
