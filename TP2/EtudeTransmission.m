@@ -6,10 +6,13 @@ function [TEB,signal_emis] = EtudeTransmission(Fe,Rb,N,type,M,nb_bits,n0,alpha,E
 %   type : type de modulation en string ('PSK', 'QAM' par exemple)
 %   M : ordre de modulation
 %   nb_bits : nombre de bits dans le message généré aléatoire
+%   n0 : n0 pour l'échantillonnage
+%   alpha : alpha pour les filtres de cosinus surélevé de mise en forme et
+%   de récéption
 %   E_bN0db_TEB : plage de variation de E_b/N0 en dB pour l'étude avec bruit
-%   n0 : choix échantillonnage
-%   h : filtre de mise en forme
-%   hr : filtre de réception
+%   E_bN0db_cons : plage de variation de E_b/N0 en dB pour l'affichage de
+%   différentes constellation en sortie de mapping et d'échantillonnage
+%   seuil_erreur : nombre de bits minimum faux pour le calcul du TEB
 %   TEB_th : TEB théorique
 % -------------------------------------------------------------------------
 %   TEB : taux d'erreur binaire pour l E_b/N0 variant de 0 à 6 dB
@@ -27,7 +30,7 @@ fprintf("Etude sans bruit\n");
 taux_erreur_binaire = sum(abs(information_entree-information_sortie))/length(information_entree);
 
 
-figure('Name',strcat("Constellation en sortie de mapping : ",int2str(M),'-',type))
+figure('Name',strcat("Constellation en sortie de mapping : ",int2str(M),'-',type),'Position', [100 100 1300 600])
 scatter(real(cons_envoye),imag(cons_envoye));
 xlabel("Partie réel");
 ylabel("Partie imaginnaire");
@@ -35,15 +38,11 @@ title(strcat("Constellation en sortie de mapping : ",int2str(M),'-',type));
 
 %  s.Name = strcat("Constellation en sortie de mapping : ",int2str(M),'-',type);
 
-figure('Name',strcat('Constellation après échantillonnage : ',' ',int2str(M),'-',type))
+figure('Name',strcat('Constellation après échantillonnage : ',' ',int2str(M),'-',type),'Position', [100 100 1300 600])
 scatter(real(cons_recu),imag(cons_recu));
 xlabel("Partie réel");
 ylabel("Partie imaginnaire");
 title(strcat("Constellation après échantillonnage : ",int2str(M),'-',type));
-
-% s=scatterplot(z_echant(2:end));
-% s.Name=strcat('Constellation après échantillonnage : ',' ',int2str(M),'-',type,' puissance bruit ',int2str(E_bN0Db));
-
 
 fprintf("Taux d'erreur sans bruit pour n0 = %.1f avec modulation %d-%s : %.4f.\n", n0, M,type,taux_erreur_binaire);
 
@@ -51,8 +50,8 @@ fprintf("Taux d'erreur sans bruit pour n0 = %.1f avec modulation %d-%s : %.4f.\n
 
 % Affichage constellation
 fprintf("Affichage de différentes constallations pour différents bruits\n");
-f1=figure('Name','Constellations en sortie de mapping pour différent bruit');
-f2=figure('Name','Constellations après échantillonnage pour différent bruit');
+f1=figure('Name','Constellations en sortie de mapping pour différent bruit','Position', [100 100 1300 600]);
+f2=figure('Name','Constellations après échantillonnage pour différent bruit','Position', [100 100 1300 600]);
 for k=1:length(E_bN0db_cons)
     [~, ~, ~, ~, cons_envoye, cons_recu]=transmission_freq(Fe,Rb,N,type,M,nb_bits,E_bN0db_cons(k),n0,h,hr);
     figure(f1);
@@ -60,13 +59,13 @@ for k=1:length(E_bN0db_cons)
     scatter(real(cons_envoye),imag(cons_envoye));
     xlabel("Partie réel");
     ylabel("Partie imaginnaire");
-    title(strcat("Constellation en sortie de mapping pour un bruit de ",int2str(E_bN0db_cons(k)),'dB'));
+    title(strcat("Constellation pour un bruit de ",int2str(E_bN0db_cons(k)),'dB'));
     figure(f2);
     subplot(ceil(sqrt(length(E_bN0db_cons))),ceil(sqrt(length(E_bN0db_cons))),k);
     scatter(real(cons_recu),imag(cons_recu));
     xlabel("Partie réel");
     ylabel("Partie imaginnaire");
-    title(strcat("Constellation après échantillonnage pour un bruit de ",int2str(E_bN0db_cons(k)),'dB'));
+    title(strcat("Constellation pour un bruit de ",int2str(E_bN0db_cons(k)),'dB'));
 
 
 end;
@@ -90,7 +89,7 @@ end;
 
 
 % Affichage
-figure('Name', strcat("Taux Erreur Binaire : ",int2str(M),'-',type));%,'Position', [100 100 1300 600]);
+figure('Name', strcat("Taux Erreur Binaire : ",int2str(M),'-',type),'Position', [100 100 1300 600]);
 s1_TEB = semilogy(E_bN0db_TEB,TEB);
 hold on;
 

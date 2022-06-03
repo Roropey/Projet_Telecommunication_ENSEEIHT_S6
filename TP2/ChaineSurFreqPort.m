@@ -8,11 +8,9 @@ Fp = 2000;
 Fe = 10000;
 Rb = 2000;
 nb_bits = 10000;
-%info_binaire = zeros(1,nb_bits);
-%info_binaire(10)=1;
 info_binaire = randi([0,1], 1,nb_bits);
 N = 201;
-seuil_erreur = 100;
+seuil_erreur = 1000;
 
 %% Modulateur
 
@@ -37,7 +35,6 @@ b_10 = -1;
 
 h = rcosdesign(alpha, (N-1)/Ns,Ns);
 M = 4;
-%t = [0:1/Fe:1/Fe*nb_bits/2-1];
 
 %% Sans bruit
 
@@ -56,10 +53,11 @@ Q = imag(xe);
 
 x = real(xe .* exp(2*1i*pi*Fp*t));
 
-% DSP
+% DSP pratique
 DSP = fftshift(abs(fft(xcorr(x,'unbiased'),10000)));
 plage=(-Fe/2 : Fe/2 - 1) * Fe/(length(DSP)-1);
 
+% DSP théorique
 syms expr_th_xe(f);
 expr_th_xe(f) = piecewise( abs(f)<=(1-alpha)*Fe/(2*Ns), (var(mapping)*Fe/Ns).*(Ns/Fe),...
 (abs(f)>=(1-alpha)*Fe/(2*Ns)) & (abs(f)<=(1+alpha)*Fe/(2*Ns)),(var(mapping)*Fe/Ns).* (Ns/(2*Fe))*(1+cos( (pi * Ns / (Fe * alpha))*(abs(f)- ((1-alpha)*Fe )/ (2*Ns) ))),...
@@ -74,9 +72,7 @@ piecewise( abs(-f-Fp)<=(1-alpha)*Fe/(2*Ns), (var(mapping)*Fe/Ns).*(Ns/Fe),...
 (abs(-f-Fp)<(1-alpha)*Fe/(2*Ns)) | (abs(-f-Fp)>(1+alpha)*Fe/(2*Ns)),0)...
 );
 
-
-
-% Affichage
+% Affichage résultats partie modulation
 figure('Name', 'Signal modulé', 'Position', [100 100 1300 600])
 
 subplot(2,2,1);
@@ -100,7 +96,7 @@ ylabel('Amplitude');
 figure('Name', 'DSP du signal modulé sur fréquence porteuse', 'Position', [100 100 1300 600])
 semilogy(plage, DSP);
 
-figure('Name',"comparaison DSP");
+figure('Name',"comparaison DSP",'Position', [100 100 1300 600]);
 s1_3 = semilogy(plage,DSP);
 hold on
 s2_3 = fplot(expr_th_x, [plage(1) plage(length(plage))]);
@@ -118,17 +114,14 @@ xcos = x.*cos(2*pi*Fp*t);
 xsin = x.*sin(2*pi*Fp*t);
 
 % Filtrage passe-bas
-Fc = 2200; %3500
+Fc = 2200; 
 Plagef = ((-50:50)'*(1/Fe));
-Filt_PB = 2*Fc*sinc(2*Fc*Plagef)*(1/Fe);
-%xcos_filt = filter(Filt_PB, 1, xcos);
-xcos_filt = filtrage(xcos',N,Fc,Fe,"bas",true)';
+xcos_filt = filtrage(xcos',N,Fc,Fe,"bas",false)';
 
-%xsin_filt = filter(Filt_PB, 1, xsin);
 xsin_filt = filtrage(xsin',N,Fc,Fe,"bas",false)';
 
-% Affichage
-figure('Name', "Filtrage Passe-Bas");
+% Affichage résultats retour en bande de base
+figure('Name', "Filtrage Passe-Bas",'Position', [100 100 1300 600]);
 subplot(2,2,1);
 plot(xcos_filt);
 title("Xcos filtré, en temporel");
@@ -153,55 +146,35 @@ title("Xsin filtré, en fréquentiel");
 x_demod = xcos_filt - xsin_filt.*1i;
 
 % Démodulation
-hr = h; %rcosdesign(alpha, (N-1)/Ns,Ns);
+hr = h; 
 x_demod_decale = [x_demod zeros(1,floor(N/2))];
 z_decale = filter(hr, 1, x_demod_decale);
 z = z_decale(floor(N/2)+1:end);%
 
-%oeil_reel = reshape(real(z), 4*(Fe/Rb), length(z)/(4*(Fe/Rb)));
-%figure('Name', "Diagramme de l'oeil de la partie réelle du signal en sortie du filtre de réception", 'Position', [100 100 1300 600]);
-%plot(oeil_reel(:,1:4*(Fe/Rb)));
-%xlabel('Echantillons');
-%ylabel('Amplitude');
-
-%oeil_imag = reshape(imag(z), 4*(Fe/Rb), length(z)/(4*(Fe/Rb)));
-%figure('Name', "Diagramme de l'oeil de la partie imaginaire du signal en sortie du filtre de réception", 'Position', [100 100 1300 600]);
-%plot(oeil_imag(:,1:4*(Fe/Rb)));
-%xlabel('Echantillons');
-%ylabel('Amplitude');
-
 n0 = 1;
 z_echant = z(n0:Ns:end);
+
 z_reel_recu = real(z_echant) > 0;
 z_imag_recu = imag(z_echant) > 0;
+
 z_recu = [z_reel_recu; z_imag_recu];
 z_recu_reshape = reshape(z_recu, 1, nb_bits);
 
+% TEB
 taux_erreur_binaire = sum(abs(info_binaire-z_recu_reshape))/length(info_binaire);
-
-
 fprintf("Taux d'erreur sans bruit pour n0 = %.1f : %.4f.\n", n0, taux_erreur_binaire);
-
-
-figure('Name',"Comparaison partie réelle");p1=plot(t,I);hold on;p2=plot(t,xcos_filt);hold off; legend([p1, p2],"Signal I","Sortie filtre cos");
-figure('Name',"Comparaison partie immaginaire");p1=plot(t,Q);hold on;p2=plot(t,-xsin_filt);hold off;legend([p1, p2],"Signal Q","Sortie filtre sin");
-
-%figure();plot(imag(mapping));hold on;plot(imag(z_echant));hold off
-%figure();plot(imag(Suite_diracs));hold on;plot(imag(z));hold off
 
 %% Avec bruit
 
-
-
 TEB = [];
 E_bN0db = 0:0.1:6;
-
 
 for E_bN0 = E_bN0db
     nb_bits_faux = 0;
     nb_bits_tot = 0;
     while nb_bits_faux < seuil_erreur
         info_binaire = randi([0,1], 1,nb_bits);
+
         % Modulation sur fréquence porteuse
         info_binaire_2 = reshape(info_binaire, [2 nb_bits/2]);
         mapping = (info_binaire_2(1, :).* (a_11 - a_01) + a_01) + 1i*(info_binaire_2(2, :).* (b_11 - b_10) + b_10);
@@ -216,27 +189,23 @@ for E_bN0 = E_bN0db
         Sigma_n = sqrt((P_x*2*Fe/Rb)/(2*log2(M)*10.^(E_bN0/10)));
         bruit = Sigma_n*randn(1, length(x));
         x_bruite = x + bruit;
-        %figure();subplot(2,2,1);plot(x);subplot(2,2,2);plot(bruit);subplot(2,2,[3 4]);p1=plot(x);hold on;p2=plot(bruit);hold off;legend([p1,p2],"x","bruit");
-
         
         % Retour en bande de base
         xcos = x_bruite.*cos(2*pi*Fp*t);
         xsin = x_bruite.*sin(2*pi*Fp*t);
-
         
         % Filtrage passe-bas
         Fc = 2200;
         xcos_filt = filtrage(xcos',N,Fc,Fe,"bas",false)';
         xsin_filt = filtrage(xsin',N,Fc,Fe,"bas",false)';
         
-        
         x_demod = xcos_filt - xsin_filt.*1i;
         
         % Démodulation
-        hr = h; %rcosdesign(alpha, (N-1)/Ns,Ns);
+        hr = h;
         x_demod_decale = [x_demod zeros(1,floor(N/2))];
         z_decale = filter(hr, 1, x_demod_decale);
-        z = z_decale(floor(N/2)+1:end);%
+        z = z_decale(floor(N/2)+1:end);
         
         n0 = 1;
         z_echant = z(n0:Ns:end);
@@ -253,7 +222,7 @@ for E_bN0 = E_bN0db
 
 end;
 
-
+% Affichage résultat TEB
 TEB_th = (4/ log2(M)).*(1-(1/sqrt(M))).*qfunc(sqrt(((3*log2(M))/(M-1)).*10.^(E_bN0db/10)));
 
 figure('Name', "Taux Erreur Binaire",'Position', [100 100 1300 600]);

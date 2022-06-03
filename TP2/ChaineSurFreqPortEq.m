@@ -56,17 +56,18 @@ Q = imag(xe);
 
 x = real(xe .* exp(2*1i*pi*Fp*t));
 
-% DSP
+% DSP pratique
 DSP = fftshift(abs(fft(xcorr(xe,'unbiased'),10000)));
 plage=(-Fe/2 : Fe/2 - 1) * Fe/(length(DSP)-1);
 
+%DSP théorique
 syms expr_th_xe(f);
 expr_th_xe(f) = piecewise( abs(f)<=(1-alpha)*Fe/(2*Ns), (var(mapping)*Fe/Ns).*(Ns/Fe),...
 (abs(f)>=(1-alpha)*Fe/(2*Ns)) & (abs(f)<=(1+alpha)*Fe/(2*Ns)),(var(mapping)*Fe/Ns).* (Ns/(2*Fe))*(1+cos( (pi * Ns / (Fe * alpha))*(abs(f)- ((1-alpha)*Fe )/ (2*Ns) ))),...
 (abs(f)<(1-alpha)*Fe/(2*Ns)) | (abs(f)>(1+alpha)*Fe/(2*Ns)),0);
 
 
-% Affichage
+% Affichage résultats partie modulation
 figure('Name', 'Signal modulé', 'Position', [100 100 1300 600])
 
 subplot(2,1,1);
@@ -101,7 +102,7 @@ ylabel('Module TFD');
 x_demod = xe;
 
 % Démodulation
-hr = h; %rcosdesign(alpha, (N-1)/Ns,Ns);
+hr = h;
 x_demod_decale = [x_demod zeros(1,floor(N/2))];
 z_decale = filter(hr, 1, x_demod_decale);
 z = z_decale(floor(N/2)+1:end);
@@ -136,14 +137,23 @@ fprintf("Taux d'erreur sans bruit pour n0 = %.1f : %.4f.\n", n0, taux_erreur_bin
 %% Avec bruit
 
 % Constellations
-E_bN0db_Cons = 0:1:8;
-for E_bN0 = E_bN0db_Cons
+
+f1=figure('Name','Constellations en sortie de mapping pour différent bruit', 'Position', [100 100 1300 600]);
+f2=figure('Name','Constellations après échantillonnage pour différent bruit', 'Position', [100 100 1300 600]);
+
+E_bN0db_Cons = 0:1:15;
+for k=1:length(E_bN0db_Cons)
     info_binaire = randi([0,1], 1,nb_bits);
     % Modulation sur fréquence porteuse
     info_binaire_2 = reshape(info_binaire, [2 nb_bits/2]);
     mapping = (info_binaire_2(1, :).* (a_11 - a_01) + a_01) + 1i*(info_binaire_2(2, :).* (b_11 - b_10) + b_10);
-    s1 = scatterplot(mapping);
-    s1.Name=strcat("Constellation sortie mapping pour bruit de ",int2str(E_bN0)," dB");
+    %Affichage constellation en sortie de mapping
+    figure(f1);
+    subplot(ceil(sqrt(length(E_bN0db_Cons))),ceil(sqrt(length(E_bN0db_Cons))),k);
+    scatter(real(mapping),imag(mapping));
+    xlabel("Partie réel");
+    ylabel("Partie imaginnaire");
+    title(strcat("Constellation pour un bruit de ",int2str(E_bN0db_Cons(k)),'dB'));
     Suite_diracs = kron(mapping, [1 zeros(1, Ns-1)]);
     Suite_diracs_decale=[Suite_diracs zeros(1,floor(N/2))]; 
     xe_decale = filter(h, 1, Suite_diracs_decale);
@@ -152,7 +162,7 @@ for E_bN0 = E_bN0db_Cons
    
     % Ajout du bruit
     P_re =  mean(abs(xe).^2);
-    Sigma_n = sqrt((P_re*2*Fe/Rb)/(2*log2(M)*10.^(E_bN0/10)));
+    Sigma_n = sqrt((P_re*2*Fe/Rb)/(2*log2(M)*10.^(E_bN0db_Cons(k)/10)));
     bruit = Sigma_n*randn(1, length(x))+1i*Sigma_n*randn(1, length(x));
     x_bruite = xe + bruit; 
 
@@ -165,12 +175,17 @@ for E_bN0 = E_bN0db_Cons
     
     n0 = 1;
     z_echant = z(n0:Ns:end);
-    s2=scatterplot(z_echant);
-    s2.Name = strcat("Constellation sortie échantillonneyr pour bruit de ",int2str(E_bN0)," dB");
-    z_fort = real(z_echant) > 0;
-    z_faible = imag(z_echant) < 0;
-    z_recu = [z_fort; z_faible];
-    z_recu_reshape = reshape(z_recu, 1, nb_bits);
+    figure(f2);
+    subplot(ceil(sqrt(length(E_bN0db_Cons))),ceil(sqrt(length(E_bN0db_Cons))),k);
+    scatter(real(z_echant),imag(z_echant));
+    xlabel("Partie réel");
+    ylabel("Partie imaginnaire");
+    title(strcat("Constellation pour un bruit de ",int2str(E_bN0db_Cons(k)),'dB'));
+    % Fin inutil
+%     z_fort = real(z_echant) > 0;
+%     z_faible = imag(z_echant) < 0;
+%     z_recu = [z_fort; z_faible];
+%     z_recu_reshape = reshape(z_recu, 1, nb_bits);
 end;
 
 % TEB

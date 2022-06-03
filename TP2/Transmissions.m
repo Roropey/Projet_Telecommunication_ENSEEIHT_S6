@@ -13,11 +13,10 @@ seuil_erreur = 1000;
 n0 = 1;
 
 %Plage du bruit pour l'affichage des constellations
-E_bN0db_cons = 0:1:8;
+E_bN0db_cons = 0:1:15;
 %Plage du bruit pour le calcul du taux d'erreur
 E_bN0db_TEB = 0:0.1:6;
 
-%(Fe,Rb,N,type,M,nb_bits,n0,h,hr,E_bN0db_TEB,seuil_erreur,TEB_th)
 
 %% 4-ASK
 fprintf("4-ASK\n");
@@ -55,7 +54,7 @@ close all;
 
 %TEB
 
-figure('Name','Comparaison TEB');
+figure('Name','Comparaison TEB','Position', [100 100 1300 600]);
 s1_TEB = semilogy(E_bN0db_TEB,TEB_4ASK);
 hold on;
 s2_TEB = semilogy(E_bN0db_TEB,TEB_QPSK);
@@ -68,7 +67,7 @@ ylabel('TEB');
 title('TEBs pour différentes modulations');
 legend([s1_TEB s2_TEB s3_TEB s4_TEB],"4-ASK","QPSK","8-PSK","16-QAM");
 
-figure('Name','Comparaison TEB théorique');
+figure('Name','Comparaison TEB théorique','Position', [100 100 1300 600]);
 s1 = semilogy(E_bN0db_TEB,TEB_th_4ASK);
 hold on;
 s2 = semilogy(E_bN0db_TEB,TEB_th_QPSK);
@@ -95,7 +94,7 @@ plage_8PSK=(-Fe/2 : Fe/(length(DSP_8PSK)-1) : Fe/2);
 DSP_16QAM = fftshift(abs(fft(xcorr(signal_emis_16QAM,'unbiased'),10000)));
 plage_16QAM=(-Fe/2 : Fe/(length(DSP_16QAM)-1) : Fe/2);
 
-figure('Name','Comparaison DSP');
+figure('Name','Comparaison DSP','Position', [100 100 1300 600]);
 s1_DSP = semilogy(plage_4ASK,DSP_4ASK);
 hold on;
 s2_DSP = semilogy(plage_QPSK,DSP_QPSK);
